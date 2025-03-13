@@ -1,40 +1,11 @@
 // database/src/config/database.config.ts
-// export interface DatabaseConfig {
-//   host: string;
-//   port: number;
-//   username: string;
-//   password: string;
-//   database: string;
-//   ssl: boolean;
-// }
-
-// export interface DatabaseEnvironments {
-//   development: DatabaseConfig;
-//   production: DatabaseConfig;
-// }
-
-// export const databaseConfig: DatabaseEnvironments = {
-//   "development": {
-//     "host": "blog-postgres",
-//     "port": 5432,
-//     "database": "blog_db",
-//     "username": "blog_user",
-//     "password": "blog_password",
-//     "ssl": false
-//   },
-//   "production": {
-//     "host": "postgres",
-//     "port": 5432,
-//     "database": "blog_db",
-//     "username": "postgres",
-//     "password": "${DB_PASSWORD}",
-//     "ssl": true
-//   }
-// };
-
-import { DataSourceOptions } from 'typeorm';
 import 'reflect-metadata';
+import { DataSourceOptions } from 'typeorm';
 import { Blog, User } from '../entities';
+import * as dotenv from 'dotenv';
+dotenv.config();
+
+console.log('=============== ', process.env.DB_HOST);
 
 export const dbConfig: DataSourceOptions = {
   type: 'postgres',

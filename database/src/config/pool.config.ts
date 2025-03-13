@@ -1,22 +1,4 @@
 // database/src/config/pool.config.ts
-// export const getPoolConfig = (env: string) => {
-// 	if (env === 'production') {
-// 		return {
-// 			poolSize: parseInt(process.env.DB_POOL_SIZE || '10'),
-// 			connectTimeoutMS: 10000,
-// 			maxQueryExecutionTime: 5000
-// 		};
-// 	}
-
-// 	// Default development pool settings
-// 	return {
-// 		poolSize: 5,
-// 		connectTimeoutMS: 30000,
-// 		maxQueryExecutionTime: 10000
-// 	};
-// };
-
-// database/src/config/pool.config.ts
 export const getPoolConfig = (env: string) => {
 	if (env === 'production') {
 		return {

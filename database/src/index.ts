@@ -1,48 +1,10 @@
 // database/src/index.ts
-// import { DataSource } from 'typeorm';
-// import * as path from 'path';
-// import { loadConfig, getPoolConfig } from './config';
-
-// Export all the necessary modules
-// export * from './connection';
-
-// // Load configuration
-// const config = loadConfig();
-// const env = process.env.NODE_ENV || 'development';
-
-// // Export the DataSource directly (this is what TypeORM CLI needs)
-// const AppDataSource = new DataSource({
-//   type: 'postgres',
-//   host: config.host,
-//   port: config.port,
-//   username: config.username,
-//   password: config.password,
-//   database: config.database,
-//   synchronize: env === 'development',
-//   logging: env === 'development',
-//   entities: [
-//     path.resolve(__dirname, './entities/**/*.entity.{ts,js}')
-//   ],
-//   migrations: [
-//     path.resolve(__dirname, './migrations/**/*.{ts,js}')
-//   ],
-//   ssl: config.ssl ? { rejectUnauthorized: false } : false,
-//   // Add connection pool settings
-//   ...getPoolConfig(env)
-// });
-
-// export default AppDataSource;
-
 import { DataSource } from 'typeorm';
-// import path from 'path';
-// import { loadConfig } from './config';
 import { getPoolConfig, config, logger } from './config';
 import { PostgresDriver } from "typeorm/driver/postgres/PostgresDriver";
 import * as dotenv from 'dotenv';
 dotenv.config();
-// import {  } from "./config";
-// Load configuration
-// const config = loadConfig();
+
 const env = process.env.NODE_ENV || 'development';
 // const host = process.env.DB_HOST || config.host || 'blog-postgres';
 
