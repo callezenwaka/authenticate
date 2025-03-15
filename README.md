@@ -9,10 +9,9 @@ hydra-auth-system/
 ├── README.md                 # Project documentation
 ├── package.json              # Root package.json for workspaces
 ├── docker-compose.yml        # Docker compose for local development
-├── packages/
-│   ├── provider/    # Identity Provider package
-│   ├── frontend/           # Client Application package
-│   └── backend/      # Resource Server package
+├── provider/                 # Identity Provider package 
+├── frontend/                 # Client Application package 
+├── backend/                  # Resource Server package 
 └── scripts/                  # Utility scripts for the project
 ```
 
@@ -63,7 +62,7 @@ Each package has its own `.env` file for configuration. Example environment vari
 
 ### Development
 
-Each component is in its own package under the `packages/` directory:
+Each component is in its own package under the root directory:
 
 - `provider`: The authentication service
 - `frontend`: A sample client application
@@ -125,6 +124,3 @@ This will start:
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-npm install --save bcrypt uuid
-npm install --save-dev @types/bcrypt @types/uuid

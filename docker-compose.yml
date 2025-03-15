@@ -3,56 +3,66 @@
 services:
   # Ory Hydra - OAuth2 and OpenID Connect Server
   hydra:
-    image: oryd/hydra:v2.1.2
+    image: oryd/hydra:v2.2.0
+    # image: oryd/hydra:latest
     ports:
       - "4444:4444" # Public API
       - "4445:4445" # Admin API
-    command: serve -c /etc/config/hydra/hydra.yaml all
+      # - "5555:5555" # Port for hydra token user
     environment:
-      - DNA=postgres://hydra:secret@postgres:5432/hydra?sslmode=disable
+      - DSN=postgres://hydra:secret@postgres:5432/hydra?sslmode=disable
       - URLS_SELF_ISSUER=http://localhost:4444/
       - URLS_LOGIN=http://localhost:3000/login
       - URLS_CONSENT=http://localhost:3000/consent
       - URLS_LOGOUT=http://localhost:3000/logout
-      - SECRETS_SYSTEM=nofreefood
+      - SECRETS_SYSTEM=nofreefoodinfreetown
       - SERVE_PUBLIC_CORS_ENABLED=true
       - SERVE_PUBLIC_CORS_ALLOWED_METHODS=POST,GET,PUT,DELETE
       - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS=http://localhost:5555
+      - OIDC_SUBJECT_IDENTIFIERS_SUPPORTED_TYPES=public,pairwise
+      - OIDC_SUBJECT_IDENTIFIERS_PAIRWISE_SALT=nofreefoodinfreetown
       - LOG_LEVEL=debug
+    restart: unless-stopped
+    command: 
+      serve -c /etc/config/hydra/hydra.yaml all --dev
     volumes:
-      - ./config/hydra.yaml:/etc/config/hydra/hydra.yaml
+      - ./provider/config/hydra.yaml:/etc/config/hydra/hydra.yaml
     depends_on:
       - hydra-postgres
       - hydra-migrate
-    restart: unless-stopped
     networks:
       - hydra-net
 
   # Hydra database migration
   hydra-migrate:
-    image: oryd/hydra:v2.1.2
+    image: oryd/hydra:v2.2.0
+    # image: oryd/hydra:latest
     environment:
       - DSN=postgres://hydra:secret@postgres:5432/hydra?sslmode=disable
-    command: migrate -c /etc/config/hydra/hydra.yal sql -e --yes
+    command: 
+      migrate -c /etc/config/hydra/hydra.yaml sql -e --yes
     volumes:
-      - ./config/hydra.yaml:/etc/config/hydra/hydra.yaml
+      - ./provider/config/hydra.yaml:/etc/config/hydra/hydra.yaml
+    restart: on-failure
     depends_on:
       - hydra-postgres
-    restart: on-failure
     networks:
       - hydra-net
 
-    # Ory Oathkeeper - API Gateway for securing admin APIs
-  oathkeeper:
-    image: oryd/oathkeeper:v0.38.26-beta.1
+  # Ory Oathkeeper - API Gateway for securing admin APIs
+  hydra-oathkeeper:
+    # image: oryd/oathkeeper:v0.38.26-beta.1
+    image: oryd/oathkeeper:latest
     ports:
       - "4455:4455" # Proxy port
       - "4456:4456" # API port
     environment:
       - LOG_LEVEL=debug
+    command: 
+      serve proxy -c /etc/config/oathkeeper/oathkeeper.yaml
+    # command: serve --config=/etc/config/oathkeeper/config.yaml
     volumes:
-      - ./config/oathkeeper:/etc/config/oathkeeper
-    command: serve proxy -c /etc/config/oathkeeper/oathkeeper.yaml
+      - ./provider/config/oathkeeper:/etc/config/oathkeeper
     networks:
       - hydra-net
     depends_on:
@@ -65,9 +75,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=hydra
-      - POSTGRES_PASSWORD=secret
-      - POSTGRES_DB=hydra
+      - POSTGRES_USER=hydra_user
+      - POSTGRES_PASSWORD=hydra_password
+      - POSTGRES_DB=hydra_db
     volumes:
       - hydra-postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -113,6 +123,11 @@ services:
     volumes:
       - redis-data:/data
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1s
+      timeout: 3s
+      retries: 30
     networks:
       - hydra-net
 
@@ -126,8 +141,9 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3000
+      # - HYDRA_ADMIN_URL=http://localhost:4445
       - HYDRA_ADMIN_URL=http://hydra:4445
-      - SESSION_SECRET=youReallyNeedToChangeThis
+      - SESSION_SECRET=nofreefoodinfreetown
       - REDIS_URL=redis://redis:6379
       - ADMIN_CLIENT_ID=internal-service
       - ADMIN_CLIENT_SECRET=internal-service-secret
@@ -187,7 +203,7 @@ services:
       - CLIENT_ID=client-app
       - CLIENT_SECRET=client-secret
       - ISSUER_BASE_URL=http://localhost:4444/
-      - SESSION_SECRET=nofreefood
+      - SESSION_SECRET=nofreefoodinfreetown
       - API_URL=http://localhost:8000
       - VITE_APP_TITLE=Hydra Demo Client
       - VITE_HYDRA_AUTH_URL=http://localhost:4444/oauth2/auth

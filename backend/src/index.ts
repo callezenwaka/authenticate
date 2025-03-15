@@ -1,3 +1,4 @@
+// backend/src/index.ts
 import 'reflect-metadata';
 import { logger } from "./utils";
 import { getDataSource, closeDatabase } from '@authenticate/database';

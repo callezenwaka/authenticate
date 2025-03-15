@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Background Shield -->
+  <path d="M16 2 L28 8 V16 C28 22.6274 22.6274 28 16 28 C9.37258 28 4 22.6274 4 16 V8 L16 2z" fill="#4A5568"/>
+  
+  <!-- Inner Shield -->
+  <path d="M16 5 L25 9.5 V16 C25 20.9706 20.9706 25 16 25 C11.0294 25 7 20.9706 7 16 V9.5 L16 5z" fill="#2D3748"/>
+  
+  <!-- Keyhole -->
+  <circle cx="16" cy="14" r="3" fill="#E2E8F0"/>
+  <rect x="14.5" y="14" width="3" height="6" rx="1.5" fill="#E2E8F0"/>
+  
+  <!-- Lock Effect -->
+  <path d="M16 11 C14.3431 11 13 12.3431 13 14 C13 15.6569 14.3431 17 16 17 C17.6569 17 19 15.6569 19 14 C19 12.3431 17.6569 11 16 11 z" fill="none" stroke="#A0AEC0" stroke-width="0.7"/>
+</svg>
