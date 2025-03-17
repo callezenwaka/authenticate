@@ -1,17 +1,29 @@
-// src/services/serviceProvider.ts
-import * as oauth from 'openid-client';
-import { BlogService, UserService, createBlogService, createUserService } from '@/services';
-import { initOAuthClient, refreshToken } from '@/config';
+import { initOAuthClient, refreshToken } from '../config';
+import { BlogService, createBlogService, UserService, createUserService } from '../services';
+import { redisToken } from '../redis';
+import { logger } from '../utils';
 
 /**
- * A service provider that maintains service instances and handles token refreshes
+ * Custom Token Type
+ */
+interface CustomToken {
+  access_token: string;
+  refresh_token?: string;
+  id_token?: string;
+  expires_in?: number;
+  token_type: string;
+}
+
+/**
+ * Enhanced Service Provider that uses Redis for token management
  */
 export class ServiceProvider {
   private blogService?: BlogService;
   private userService?: UserService;
-  private tokens?: oauth.TokenEndpointResponse & oauth.TokenEndpointResponseHelpers;
-  private config?: oauth.Configuration;
+  private tokens?: CustomToken;
+  private config?: any;
   private apiBaseUrl: string;
+  private userId?: string;
 
   constructor(apiBaseUrl?: string) {
     this.apiBaseUrl = apiBaseUrl || process.env.API_URL || 'http://localhost:8000';
@@ -20,14 +32,29 @@ export class ServiceProvider {
   /**
    * Initialize the service provider with tokens and OAuth config
    */
-  async initialize(tokens?: oauth.TokenEndpointResponse & oauth.TokenEndpointResponseHelpers): Promise<void> {
-    this.tokens = tokens;
-    this.config = await initOAuthClient();
-    
-    // Initialize services if tokens are provided
-    if (tokens?.access_token) {
-      this.blogService = createBlogService(this.apiBaseUrl, tokens, this.config);
-      this.userService = createUserService(this.apiBaseUrl, tokens, this.config);
+  async initialize(
+    tokens?: CustomToken,
+    userId?: string
+  ): Promise<void> {
+    try {
+      this.tokens = tokens;
+      this.userId = userId;
+      this.config = await initOAuthClient();
+
+      // Store tokens in Redis if we have userId and tokens
+      if (userId && tokens?.access_token) {
+        await redisToken.storeToken(userId, tokens);
+        logger.debug('Tokens stored in Redis for user', userId);
+      }
+
+      // Services will be lazily created when needed
+      this.blogService = undefined;
+      this.userService = undefined;
+
+      logger.debug('Enhanced service provider initialized');
+    } catch (error) {
+      logger.error('Failed to initialize service provider:', error);
+      throw error;
     }
   }
 
@@ -35,27 +62,38 @@ export class ServiceProvider {
    * Update tokens after a refresh
    */
   async updateTokens(refreshTokenValue: string): Promise<void> {
-    if (!this.config) {
-      this.config = await initOAuthClient();
-    }
-    
     try {
+      if (!this.config) {
+        this.config = await initOAuthClient();
+      }
+
+      // Check if the token is blacklisted
+      if (await redisToken.isBlacklisted(refreshTokenValue)) {
+        logger.warn('Attempted to use blacklisted refresh token');
+        throw new Error('Refresh token has been revoked');
+      }
+
       // Refresh the token
       const newTokens = await refreshToken(this.config, refreshTokenValue);
       this.tokens = newTokens;
-      
+
+      // Update tokens in Redis
+      if (this.userId) {
+        await redisToken.storeToken(this.userId, newTokens);
+      }
+
       // Update existing services with new access token
-      if (this.blogService) {
-        // HERE is where we call updateAccessToken
+      if (this.blogService && newTokens.access_token) {
         this.blogService.updateAccessToken(newTokens.access_token);
       }
-      
-      if (this.userService) {
-        // HERE is where we call updateAccessToken
+
+      if (this.userService && newTokens.access_token) {
         this.userService.updateAccessToken(newTokens.access_token);
       }
+
+      logger.debug('Tokens refreshed successfully');
     } catch (error) {
-      console.error('Failed to refresh token:', error);
+      logger.error('Failed to refresh token:', error);
       throw error;
     }
   }
@@ -64,16 +102,26 @@ export class ServiceProvider {
    * Check if token refresh is needed and perform it
    */
   async ensureValidToken(): Promise<boolean> {
-    if (!this.tokens || !this.tokens.refresh_token) {
+    // Full null check to make TypeScript happy
+    if (!this.tokens) {
+      logger.debug('No tokens available for refresh');
       return false;
     }
 
-    const expiresIn = this.tokens.expiresIn();
+    // Now we can safely check for refresh_token
+    if (!this.tokens.refresh_token) {
+      logger.debug('No refresh token available');
+      return false;
+    }
+
+    const expiresIn = this.tokens.expires_in;
     if (expiresIn !== undefined && expiresIn < 60) { // Less than 60 seconds remaining
+      logger.debug(`Token expires in ${expiresIn} seconds, refreshing`);
       await this.updateTokens(this.tokens.refresh_token);
       return true;
     }
-    
+
+    logger.debug(`Token valid for ${expiresIn} more seconds`);
     return true;
   }
 
@@ -82,15 +130,22 @@ export class ServiceProvider {
    */
   async getBlogService(): Promise<BlogService> {
     await this.ensureValidToken();
-    
+
     if (!this.blogService) {
       if (!this.tokens?.access_token) {
+        logger.error('Cannot create blog service: no access token available');
         throw new Error('Not authenticated');
       }
-      
+
+      if (!this.config) {
+        this.config = await initOAuthClient();
+      }
+
+      // Create the blog service
       this.blogService = createBlogService(this.apiBaseUrl, this.tokens, this.config);
+      logger.debug('Blog service created');
     }
-    
+
     return this.blogService;
   }
 
@@ -99,46 +154,67 @@ export class ServiceProvider {
    */
   async getUserService(): Promise<UserService> {
     await this.ensureValidToken();
-    
+
     if (!this.userService) {
       if (!this.tokens?.access_token) {
+        logger.error('Cannot create user service: no access token available');
         throw new Error('Not authenticated');
       }
-      
+
+      if (!this.config) {
+        this.config = await initOAuthClient();
+      }
+
+      // Create the user service
       this.userService = createUserService(this.apiBaseUrl, this.tokens, this.config);
+      logger.debug('User service created');
     }
-    
+
     return this.userService;
   }
-  
+
   /**
    * Get the current tokens
    */
-  getTokens(): oauth.TokenEndpointResponse & oauth.TokenEndpointResponseHelpers | undefined {
+  getTokens(): CustomToken | undefined {
     return this.tokens;
+  }
+
+  /**
+   * Logout/invalidate tokens
+   */
+  async logout(): Promise<void> {
+    try {
+      // Type-safe check for refresh token
+      if (this.tokens && this.tokens.refresh_token) {
+        await redisToken.blacklistToken(this.tokens.refresh_token);
+      }
+
+      // Remove tokens from Redis for this user
+      if (this.userId) {
+        await redisToken.invalidateToken(this.userId);
+      }
+
+      // Reset the service provider
+      this.reset();
+
+      logger.debug('Logout completed and tokens invalidated');
+    } catch (error) {
+      logger.error('Error during logout:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Reset the service provider (useful for testing or after logout)
+   */
+  reset(): void {
+    this.blogService = undefined;
+    this.userService = undefined;
+    this.tokens = undefined;
+    logger.debug('Service provider reset');
   }
 }
 
-// Create a singleton instance
-export let serviceProvider = new ServiceProvider();
-
-// Example of using the service provider in a middleware
-export const initializeServices = async (
-  req: any,
-  res: any,
-  next: () => void
-) => {
-  try {
-    if (req.session?.tokens) {
-      // Initialize the service provider with tokens from the session
-      await serviceProvider.initialize(req.session.tokens);
-    }
-    
-    // Make the service provider available on the request
-    req.services = serviceProvider;
-    
-    next();
-  } catch (error) {
-    next();
-  }
-};
+// Export a singleton instance for app-wide use
+export const serviceProvider = new ServiceProvider();

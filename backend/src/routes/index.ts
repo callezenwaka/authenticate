@@ -1,3 +1,4 @@
+// backend/src/routes/index.ts
 import { Router } from 'express';
 import blogRoutes from './blog.route';
 import userRoutes from './user.route';

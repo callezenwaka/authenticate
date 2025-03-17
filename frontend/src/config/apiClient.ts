@@ -1,14 +1,13 @@
 // src/services/api/apiClient.ts
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import * as oauth from 'openid-client';
-import { ErrorResponse } from '@/types/api.types';
-import { logger } from '@/utils';
+import { ErrorResponse } from '../types';
+import { logger } from '../utils';
 
 /**
  * Creates a configured Axios instance for API requests
  */
 export const createApiClient = (
-  baseURL: string, 
+  baseURL: string,
   accessToken?: string
 ): AxiosInstance => {
   const apiClient = axios.create({
@@ -74,10 +73,9 @@ export const createApiClient = (
 };
 
 /**
- * Helper function to make protected resource requests using openid-client
+ * Helper function to make protected resource requests using axios
  */
 export const fetchWithOAuth = async <T>(
-  config: oauth.Configuration,
   accessToken: string,
   baseURL: string,
   path: string,
@@ -85,27 +83,21 @@ export const fetchWithOAuth = async <T>(
   body?: any
 ): Promise<T> => {
   try {
-    const url = new URL(path, baseURL);
-    const response = await oauth.fetchProtectedResource(
-      config,
-      accessToken,
+    const url = `${baseURL}${path}`;
+
+    const response = await axios({
       url,
       method,
-      body ? JSON.stringify(body) : undefined,
-      new Headers({
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
-      })
-    );
-    
-    // return await response.json();
-    const data = await response.json();
-    // Use type assertion to inform TypeScript this is the correct type
-    return data as T;
+      },
+      data: body ? JSON.stringify(body) : undefined
+    });
+
+    return response.data as T;
   } catch (error) {
     logger.error(`Error fetching resource ${path}:`, error);
     throw error;
   }
 };
-
-
-

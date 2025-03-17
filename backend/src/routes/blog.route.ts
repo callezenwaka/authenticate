@@ -1,3 +1,4 @@
+// backend/src/routes/blog.route.ts
 import { Router } from 'express';
 import { BlogController } from '../controllers';
 

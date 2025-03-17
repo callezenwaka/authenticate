@@ -10,7 +10,7 @@ services:
       - "4445:4445" # Admin API
       # - "5555:5555" # Port for hydra token user
     environment:
-      - DSN=postgres://hydra:secret@postgres:5432/hydra?sslmode=disable
+      - DSN=postgres://hydra_user:hydra_password@hydra-postgres:5432/hydra_db?sslmode=disable
       - URLS_SELF_ISSUER=http://localhost:4444/
       - URLS_LOGIN=http://localhost:3000/login
       - URLS_CONSENT=http://localhost:3000/consent
@@ -38,7 +38,7 @@ services:
     image: oryd/hydra:v2.2.0
     # image: oryd/hydra:latest
     environment:
-      - DSN=postgres://hydra:secret@postgres:5432/hydra?sslmode=disable
+      - DSN=postgres://hydra_user:hydra_password@hydra-postgres:5432/hydra_db?sslmode=disable
     command: 
       migrate -c /etc/config/hydra/hydra.yaml sql -e --yes
     volumes:
@@ -50,24 +50,24 @@ services:
       - hydra-net
 
   # Ory Oathkeeper - API Gateway for securing admin APIs
-  hydra-oathkeeper:
-    # image: oryd/oathkeeper:v0.38.26-beta.1
-    image: oryd/oathkeeper:latest
-    ports:
-      - "4455:4455" # Proxy port
-      - "4456:4456" # API port
-    environment:
-      - LOG_LEVEL=debug
-    command: 
-      serve proxy -c /etc/config/oathkeeper/oathkeeper.yaml
-    # command: serve --config=/etc/config/oathkeeper/config.yaml
-    volumes:
-      - ./provider/config/oathkeeper:/etc/config/oathkeeper
-    networks:
-      - hydra-net
-    depends_on:
-      - hydra
-    restart: unless-stopped
+  # hydra-oathkeeper:
+  #   # image: oryd/oathkeeper:v0.38.26-beta.1
+  #   image: oryd/oathkeeper:latest
+  #   ports:
+  #     - "4455:4455" # Proxy port
+  #     - "4456:4456" # API port
+  #   environment:
+  #     - LOG_LEVEL=debug
+  #   command: 
+  #     serve proxy -c /etc/config/oathkeeper/oathkeeper.yaml
+  #   # command: serve --config=/etc/config/oathkeeper/config.yaml
+  #   volumes:
+  #     - ./provider/config/oathkeeper:/etc/config/oathkeeper
+  #   networks:
+  #     - hydra-net
+  #   depends_on:
+  #     - hydra
+  #   restart: unless-stopped
 
   # PostgreSQL database for Hydra
   hydra-postgres:
@@ -81,6 +81,11 @@ services:
     volumes:
       - hydra-postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hydra_user -d hydra_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
       - hydra-net
 
@@ -96,6 +101,11 @@ services:
     volumes:
       - blog-postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U blog_user -d blog_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
       - hydra-net
 
@@ -132,95 +142,95 @@ services:
       - hydra-net
 
   # Identity Provider Service
-  provider:
-    build:
-      context: ./provider
-      dockerfile: dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=development
-      - PORT=3000
-      # - HYDRA_ADMIN_URL=http://localhost:4445
-      - HYDRA_ADMIN_URL=http://hydra:4445
-      - SESSION_SECRET=nofreefoodinfreetown
-      - REDIS_URL=redis://redis:6379
-      - ADMIN_CLIENT_ID=internal-service
-      - ADMIN_CLIENT_SECRET=internal-service-secret
-    depends_on:
-      - hydra
-      - redis
-    restart: unless-stopped
-    networks:
-      - hydra-net
-    volumes:
-      - ./provider:/app
-      - /app/node_modules
+  # provider:
+  #   build:
+  #     context: ./provider
+  #     dockerfile: dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - NODE_ENV=development
+  #     - PORT=3000
+  #     # - HYDRA_ADMIN_URL=http://localhost:4445
+  #     - HYDRA_ADMIN_URL=http://hydra:4445
+  #     - SESSION_SECRET=nofreefoodinfreetown
+  #     - REDIS_URL=redis://redis:6379
+  #     - ADMIN_CLIENT_ID=internal-service
+  #     - ADMIN_CLIENT_SECRET=internal-service-secret
+  #   depends_on:
+  #     - hydra
+  #     - redis
+  #   restart: unless-stopped
+  #   networks:
+  #     - hydra-net
+  #   volumes:
+  #     - ./provider:/app
+  #     - /app/node_modules
 
   # Resource Server API
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    environment:
-      # - NODE_ENV=development
-      - PORT=8000
-      - JWKS_URI=http://localhost:4444/.well-known/jwks.json
-      - TOKEN_ISSUER=http://localhost:4444/
-      - TOKEN_AUDIENCE=http://localhost:8000
-      - AUTH_URL=http://hydra:4445
-      - DB_HOST=blog-postgres
-      - DB_PORT=5432
-      - DB_USER=blog_user
-      - DB_PASSWORD=blog_password
-      - DB_NAME=blog_db
-      - REDIS_URL=redis://redis:6379
-      # - REDIS_HOST=redis
-      - REDIS_HOST=localhost
-      - REDIS_PORT=6379
-    depends_on:
-      - hydra
-    restart: unless-stopped
-    networks:
-      - hydra-net
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     # - NODE_ENV=development
+  #     - PORT=8000
+  #     - JWKS_URI=http://localhost:4444/.well-known/jwks.json
+  #     - TOKEN_ISSUER=http://localhost:4444/
+  #     - TOKEN_AUDIENCE=http://localhost:8000
+  #     - AUTH_URL=http://hydra:4445
+  #     - DB_HOST=blog-postgres
+  #     - DB_PORT=5432
+  #     - DB_USER=blog_user
+  #     - DB_PASSWORD=blog_password
+  #     - DB_NAME=blog_db
+  #     - REDIS_URL=redis://redis:6379
+  #     - REDIS_HOST=redis
+  #     # - REDIS_HOST=localhost
+  #     - REDIS_PORT=6379
+  #   depends_on:
+  #     - hydra
+  #   restart: unless-stopped
+  #   networks:
+  #     - hydra-net
+  #   volumes:
+  #     - ./backend:/app
+  #     - /app/node_modules
       
   # Client Application
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "5555:5555"
-    environment:
-      - NODE_ENV=development
-      - PORT=5555
-      - BASE_URL=http://localhost:5555
-      - CLIENT_ID=client-app
-      - CLIENT_SECRET=client-secret
-      - ISSUER_BASE_URL=http://localhost:4444/
-      - SESSION_SECRET=nofreefoodinfreetown
-      - API_URL=http://localhost:8000
-      - VITE_APP_TITLE=Hydra Demo Client
-      - VITE_HYDRA_AUTH_URL=http://localhost:4444/oauth2/auth
-      - VITE_HYDRA_TOKEN_URL=http://localhost:4444/oauth2/token
-      - VITE_CLIENT_ID=client-app
-      - VITE_CLIENT_SECRET=client-secret
-      - VITE_REDIRECT_URI=http://localhost:5555/callback
-      - VITE_API_URL=http://localhost:8000
-    depends_on:
-      - hydra
-      - backend
-    restart: unless-stopped
-    networks:
-      - hydra-net
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5555:5555"
+  #   environment:
+  #     - NODE_ENV=development
+  #     - PORT=5555
+  #     - BASE_URL=http://localhost:5555
+  #     - CLIENT_ID=client-app
+  #     - CLIENT_SECRET=client-secret
+  #     - ISSUER_BASE_URL=http://localhost:4444/
+  #     - SESSION_SECRET=nofreefoodinfreetown
+  #     - API_URL=http://localhost:8000
+  #     - VITE_APP_TITLE=Hydra Demo Client
+  #     - VITE_HYDRA_AUTH_URL=http://localhost:4444/oauth2/auth
+  #     - VITE_HYDRA_TOKEN_URL=http://localhost:4444/oauth2/token
+  #     - VITE_CLIENT_ID=client-app
+  #     - VITE_CLIENT_SECRET=client-secret
+  #     - VITE_REDIRECT_URI=http://localhost:5555/callback
+  #     - VITE_API_URL=http://localhost:8000
+  #   depends_on:
+  #     - hydra
+  #     - backend
+  #   restart: unless-stopped
+  #   networks:
+  #     - hydra-net
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
 
 # Create network
 networks:

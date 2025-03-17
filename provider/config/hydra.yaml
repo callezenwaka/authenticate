@@ -1,4 +1,4 @@
-# config/hydra.yaml
+# provider/config/hydra.yaml
 serve:
   public:
     port: 4444
@@ -14,6 +14,9 @@ serve:
         - OPTIONS
   admin:
     port: 4445
+
+# dsn: postgres://hydra_user:hydra_password@postgres:5432/hydra?sslmode=disable
+dsn: postgres://hydra_user:hydra_password@hydra-postgres:5432/hydra_db?sslmode=disable
 
 urls:
   self:
@@ -43,6 +46,7 @@ ttl:
 
 strategies:
   access_token: jwt
+  # access_token: opaque
 
 log:
   level: debug

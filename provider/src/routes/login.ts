@@ -3,7 +3,7 @@ import express, { Request, Response, NextFunction } from "express"
 import url from "url"
 import urljoin from "url-join"
 import csrf from "csurf"
-import { hydraAdmin } from "../configs"
+import { hydraAdmin } from "../config"
 import { oidcConformityMaybeFakeAcr } from "./stub/oidc-cert"
 import { userService } from "../services/user" // Import the user service
 

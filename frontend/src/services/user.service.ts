@@ -1,32 +1,10 @@
-// src/services/api/userService.ts
-import { AxiosInstance } from 'axios';
-import * as oauth from 'openid-client';
-import { createApiClient, fetchWithOAuth } from '@/config';
-import { ApiResponseData } from '@/types/api.types';
-import { User, UserCredentials, UserRegistration, AuthResponse } from '@/types/user.types';
-import { logger } from '@/utils';
+import { fetchWithOAuth } from '../config';
+import { User, UserCredentials, UserRegistration, AuthResponse, ApiResponseData } from '../types';
+import { BaseService } from './base.service';
+import { logger } from '../utils';
+import { CustomToken, OAuthConfig } from '../types';
 
-export class UserService {
-  private api: AxiosInstance;
-  private accessToken?: string;
-  private config?: oauth.Configuration;
-  private baseURL: string;
-
-  constructor(baseURL: string, accessToken?: string, config?: oauth.Configuration) {
-    this.baseURL = baseURL;
-    this.accessToken = accessToken;
-    this.config = config;
-    this.api = createApiClient(baseURL, accessToken);
-  }
-
-  /**
-   * Update the access token used for requests
-   */
-  updateAccessToken(accessToken: string): void {
-    this.accessToken = accessToken;
-    this.api = createApiClient(this.baseURL, accessToken);
-  }
-
+export class UserService extends BaseService {
   /**
    * Register new user
    */
@@ -106,16 +84,15 @@ export class UserService {
   }
 
   /**
-   * Alternative: Get user profile using OAuth client directly
+   * Get user profile using OAuth client directly
    */
   async getUserProfileWithOAuth(id: string): Promise<ApiResponseData<User>> {
     if (!this.accessToken || !this.config) {
       return { data: null, error: 'Missing access token or OAuth configuration' };
     }
-    
+
     try {
       const data = await fetchWithOAuth<User>(
-        this.config,
         this.accessToken,
         this.baseURL,
         `/users/${id}`,
@@ -133,13 +110,13 @@ export class UserService {
  * Factory function to create user service
  */
 export const createUserService = (
-    baseURL: string = process.env.API_URL || 'http://localhost:8000',
-    tokenResponse?: oauth.TokenEndpointResponse & oauth.TokenEndpointResponseHelpers,
-    config?: oauth.Configuration
-  ): UserService => {
-    return new UserService(
-      baseURL,
-      tokenResponse?.access_token,
-      config
-    );
-  };
+  baseURL: string = process.env.API_URL || 'http://localhost:8000',
+  tokenResponse?: CustomToken,
+  config?: OAuthConfig
+): UserService => {
+  return new UserService(
+    baseURL,
+    tokenResponse?.access_token,
+    config
+  );
+};

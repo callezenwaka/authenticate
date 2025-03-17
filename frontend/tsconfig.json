@@ -1,15 +1,18 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "lib": ["ES2020"],
-    "outDir": "./dist",
+    "target": "ES6",
+    "module": "ESNext",
+    "lib": ["ES6", "dom"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
     "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
@@ -21,9 +24,27 @@
       "@utils/*": ["src/utils/*"],
       "@config/*": ["src/config/*"],
       "@provider/*": ["src/provider/*"],
+      "@redis/*": ["src/redis/*"],
       "@types/*": ["src/types/*"]
     }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.test.ts"]
 }
+
+// {
+//   "compilerOptions": {
+//     "resolveJsonModule": true,
+//     "target": "es5",
+//     "module": "commonjs",
+//     "lib": ["es2019", "dom"],
+//     "outDir": "./lib",
+//     "rootDir": "./src",
+//     "strict": true,
+//     "typeRoots": ["./typings"],
+//     "esModuleInterop": true,
+//     "forceConsistentCasingInFileNames": true
+//   },
+//   "include": ["src/**/*"],
+//   "exclude": ["node_modules", "**/*.test.ts"]
+// }

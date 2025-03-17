@@ -5,7 +5,7 @@ import express from "express"
 import url from "url"
 import urljoin from "url-join"
 import csrf from "csurf"
-import { hydraAdmin } from "../configs"
+import { hydraAdmin } from "../config"
 
 // Sets up csrf protection
 const csrfProtection = csrf({ cookie: true })

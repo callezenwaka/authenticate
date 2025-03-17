@@ -8,7 +8,8 @@
     "rootDir": "./src",
     "strict": true,
     "typeRoots": ["./typings"],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
   },
   "exclude": ["contrib"]
 }

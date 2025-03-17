@@ -9,7 +9,6 @@ router.get("/", (req, res) => {
   res.render("index", {
     pageTitle: "Authenticate | Home Page"
   });
-  res.render("index")
 })
 
 export default router

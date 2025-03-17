@@ -10,8 +10,9 @@ hydra-auth-system/
 ├── package.json              # Root package.json for workspaces
 ├── docker-compose.yml        # Docker compose for local development
 ├── provider/                 # Identity Provider package 
-├── frontend/                 # Client Application package 
-├── backend/                  # Resource Server package 
+├── frontend/                 # Front Application package 
+├── client/                   # Client Application package 
+├── backend/                  # Server package 
 └── scripts/                  # Utility scripts for the project
 ```
 

@@ -1,8 +1,7 @@
-
 // frontend/src/redis/redisStore.ts
 import session from 'express-session';
-import redisClient from './redisClient'; // Assuming this path is correct
-import { logger } from '@/utils';
+import redisClient from './client.redis';
+import { logger } from '../utils';
 
 export class RedisStore extends session.Store {
 	constructor() {

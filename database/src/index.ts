@@ -17,8 +17,9 @@ const AppDataSource = new DataSource({
 let dataSourceInstance: DataSource | null = AppDataSource;
 
 // Function to get the initialized DataSource
-export const getDataSource = async (): Promise<DataSource> => {
+export const getDataSource = async (caller: string = 'unknown'): Promise<DataSource> => {
 	if (dataSourceInstance && dataSourceInstance.isInitialized) {
+		logger.info(`Database connection already initialized. (Caller: ${caller})`);
 		return dataSourceInstance;
 	}
 
@@ -26,18 +27,18 @@ export const getDataSource = async (): Promise<DataSource> => {
 	if (!dataSourceInstance?.isInitialized) {
 		try {
 			await dataSourceInstance?.initialize();
-			logger.info('Database connection established!!!');
+      logger.info(`Database connection established (Caller: ${caller})`);
 
 			const driver = dataSourceInstance?.driver as PostgresDriver;
 			const pool = (driver as any).databaseConnection;
 
 			if (pool && typeof pool.on === "function") {
 				pool.on("error", (err: Error) => {
-					logger.error("Unexpected database pool error:", err);
+          logger.error(`Unexpected database pool error: ${err} (Caller: ${caller})`);
 				});
 			}
 		} catch (error) {
-			logger.error('Error connecting to database:', error);
+      logger.error(`Error connecting to database: ${error} (Caller: ${caller})`);
 			throw error;
 		}
 	}

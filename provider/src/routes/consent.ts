@@ -5,7 +5,7 @@ import express from "express"
 import url from "url"
 import urljoin from "url-join"
 import csrf from "csurf"
-import { hydraAdmin } from "../configs"
+import { hydraAdmin } from "../config"
 import { oidcConformityMaybeFakeSession } from "./stub/oidc-cert"
 import { AcceptOAuth2ConsentRequestSession } from "@ory/hydra-client-fetch"
 

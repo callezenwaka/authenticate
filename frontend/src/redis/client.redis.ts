@@ -1,16 +1,16 @@
 // frontend/src/redis/redisClient.ts
 import { createClient } from "redis";
-import { logger } from "@/utils";
+import { logger } from "../utils";
 
 function getRedisConfig() {
   const host = process.env.REDIS_HOST || 'localhost';
   const port = process.env.REDIS_PORT || '6379';
   const password = process.env.REDIS_PASSWORD;
-  
-  const url = password 
+
+  const url = password
     ? `redis://:${password}@${host}:${port}`
     : `redis://${host}:${port}`;
-    
+
   return {
     url,
     socket: {

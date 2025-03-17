@@ -11,6 +11,8 @@ RUN npm ci --silent
 
 COPY . /usr/src/app
 
+# COPY public /usr/src/app/public
+
 RUN npm run build
 
 USER 10000

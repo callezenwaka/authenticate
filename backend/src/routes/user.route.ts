@@ -1,6 +1,7 @@
-// node-service/src/routes/user.route.ts
+// backend/src/routes/user.route.ts
 import { Router } from 'express';
 import { UserController } from '../controllers';
+import { authenticateJwt, requireScopes } from '../middleware';
 
 const router = Router();
 const userController = new UserController();
@@ -9,10 +10,9 @@ const userController = new UserController();
 router.post('/login', userController.login);
 router.post('/register', userController.create);
 
-// Protected routes (will add auth middleware later)
-router.get('/', userController.getAll);
-router.get('/:id', userController.getById);
-router.put('/:id', userController.update);
-router.delete('/:id', userController.delete);
+router.get('/', authenticateJwt, requireScopes(['resources:read']), userController.getAll);
+router.get('/:id', authenticateJwt, requireScopes(['resources:read']), userController.getById);
+router.put('/:id', authenticateJwt, userController.update);
+router.delete('/:id', authenticateJwt, requireScopes(['admin']), userController.delete);
 
 export default router;

@@ -1,32 +1,11 @@
-// src/services/api/blogService.ts
-import { AxiosInstance } from 'axios';
-import * as oauth from 'openid-client';
-import { createApiClient, fetchWithOAuth } from '@/config';
-import { ApiResponseData } from '@/types/api.types';
-import { BlogPost } from '@/types/blog.types';
-import { logger } from '@/utils';
+// frontend/src/services/blog.service.ts
+import { fetchWithOAuth } from '../config';
+import { ApiResponseData, BlogPost } from '../types';
+import { BaseService } from './base.service';
+import { logger } from '../utils';
+import { CustomToken, OAuthConfig } from '../types';
 
-export class BlogService {
-  private api: AxiosInstance;
-  private accessToken?: string;
-  private config?: oauth.Configuration;
-  private baseURL: string;
-
-  constructor(baseURL: string, accessToken?: string, config?: oauth.Configuration) {
-    this.baseURL = baseURL;
-    this.accessToken = accessToken;
-    this.config = config;
-    this.api = createApiClient(baseURL, accessToken);
-  }
-
-  /**
-   * Update the access token used for requests
-   */
-  updateAccessToken(accessToken: string): void {
-    this.accessToken = accessToken;
-    this.api = createApiClient(this.baseURL, accessToken);
-  }
-
+export class BlogService extends BaseService {
   /**
    * Get all blog posts
    */
@@ -99,10 +78,9 @@ export class BlogService {
     if (!this.accessToken || !this.config) {
       return { data: null, error: 'Missing access token or OAuth configuration' };
     }
-    
+
     try {
       const data = await fetchWithOAuth<BlogPost[]>(
-        this.config,
         this.accessToken,
         this.baseURL,
         '/blogs',
@@ -121,8 +99,8 @@ export class BlogService {
  */
 export const createBlogService = (
   baseURL: string = process.env.API_URL || 'http://localhost:8000',
-  tokenResponse?: oauth.TokenEndpointResponse & oauth.TokenEndpointResponseHelpers,
-  config?: oauth.Configuration
+  tokenResponse?: CustomToken,
+  config?: OAuthConfig
 ): BlogService => {
   return new BlogService(
     baseURL,

@@ -11,8 +11,8 @@
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "baseUrl": ".",  // Add this
-    "paths": {       // Add this
+    "baseUrl": ".",
+    "paths": {
       "@/*": ["src/*"],
       "@controllers/*": ["src/controllers/*"],
       "@models/*": ["src/models/*"],

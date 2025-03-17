@@ -1,1 +1,2 @@
-export * from './service.provider';
+// src/provider/index.ts
+export { serviceProvider, ServiceProvider } from './service.provider';

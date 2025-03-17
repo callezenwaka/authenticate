@@ -16,8 +16,6 @@ import { logger } from "../config";
 //   };
 // }
 
-console.log('===redis: ', process.env.REDIS_HOST);
-
 function getRedisConfig() {
   const host = process.env.REDIS_HOST || 'localhost';
   const port = process.env.REDIS_PORT || '6379';

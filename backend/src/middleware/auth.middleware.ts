@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { expressjwt as jwt, GetVerificationKey } from 'express-jwt';
 import jwksRsa from 'jwks-rsa';
-import { AuthenticatedRequest } from '../types';
-import { logger } from '../utils/logger';
+import { AuthenticatedRequest } from '@/types';
+import { logger } from '@/utils';
 
 /**
  * JWT validation middleware

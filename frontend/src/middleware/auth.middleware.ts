@@ -1,20 +1,7 @@
-// src/middleware/auth.middleware.ts
 import { Request, Response, NextFunction } from 'express';
-import * as oauth from 'openid-client';
-import { initOAuthClient, refreshToken, getUserInfo } from '@/config';
-import { AuthenticatedRequest } from '@/types/auth.types';
-import { logger } from '@/utils';
-
-// Extend Express session
-declare module 'express-session' {
-  interface Session {
-    tokens?: oauth.TokenEndpointResponse & oauth.TokenEndpointResponseHelpers;
-    userInfo?: any;
-    returnTo?: string;
-    code_verifier?: string;
-    oauth_state?: string;
-  }
-}
+import { initOAuthClient, refreshToken, getUserInfo, handleCallback as customHandleCallback, getAuthorizationUrl, getEndSessionUrl } from '../config';
+import { AuthenticatedRequest } from '@/types';
+import { logger } from '../utils';
 
 /**
  * Authentication middleware
@@ -41,12 +28,12 @@ export const authMiddleware = async (
       request.isAuthenticated = true;
 
       // Check if token is about to expire
-      const expiresIn = request.tokens.expiresIn();
-      
+      const expiresIn = request.tokens.expires_in;
+
       // If token is about to expire (less than 5 minutes), refresh it
       if (expiresIn !== undefined && expiresIn < 5 * 60 && request.tokens.refresh_token) {
         logger.debug('Access token is about to expire. Refreshing...');
-        
+
         try {
           const newTokens = await refreshToken(config, request.tokens.refresh_token);
           req.session.tokens = newTokens;
@@ -79,13 +66,13 @@ export const authMiddleware = async (
  */
 export const requireAuth = (req: Request, res: Response, next: NextFunction): void => {
   const request = req as AuthenticatedRequest;
-  
+
   if (!request.isAuthenticated) {
     // Store the original URL in the session
     req.session.returnTo = req.originalUrl;
     return res.redirect('/login');
   }
-  
+
   next();
 };
 
@@ -98,7 +85,7 @@ export const handleLoginCallback = async (
   next: NextFunction
 ): Promise<void> => {
   const request = req as AuthenticatedRequest;
-  
+
   try {
     if (!request.oauthConfig) {
       throw new Error('OAuth configuration not initialized');
@@ -109,43 +96,40 @@ export const handleLoginCallback = async (
     const host = req.get('host') || '';
     const originalUrl = req.originalUrl;
     const currentUrl = new URL(`${protocol}://${host}${originalUrl}`);
-    
+
     // Exchange code for tokens
-    const tokens = await oauth.authorizationCodeGrant(
+    const tokens = await customHandleCallback(
       request.oauthConfig,
       currentUrl,
-      {
-        pkceCodeVerifier: req.session.code_verifier,
-        expectedState: req.session.oauth_state
-      }
+      req
     );
-    
+
     // Clear PKCE and state from session
     delete req.session.code_verifier;
     delete req.session.oauth_state;
-    
+
     // Store tokens in session
     req.session.tokens = tokens;
-    
+
     // Get user info from ID token
-    const idTokenClaims = tokens.claims();
+    const idTokenClaims = tokens.id_token ? JSON.parse(Buffer.from(tokens.id_token.split('.')[1], 'base64').toString()) : {};
     if (!idTokenClaims?.sub) {
       throw new Error('No subject identifier (sub) found in ID token');
     }
-    
+
     // Get additional user info if needed
     const userInfo = await getUserInfo(
       request.oauthConfig,
       tokens.access_token,
       idTokenClaims.sub
     );
-    
+
     req.session.userInfo = userInfo;
-    
+
     // Redirect to original URL or home
     const returnTo = req.session.returnTo || '/';
     delete req.session.returnTo;
-    
+
     res.redirect(returnTo);
   } catch (error) {
     logger.error('Login callback error:', error);
@@ -163,23 +147,12 @@ export const handleLogin = async (
 ): Promise<void> => {
   try {
     const config = await initOAuthClient();
-    
+
     // Get authorization URL with PKCE
-    const authUrl = await oauth.buildAuthorizationUrl(config, {
-      redirect_uri: `${process.env.BASE_URL || 'http://localhost:5555'}/callback`,
-      scope: process.env.OAUTH_SCOPE || 'openid profile email',
-      // Generate PKCE code verifier and challenge
-      code_challenge: await oauth.calculatePKCECodeChallenge(
-        // Store code_verifier in session
-        req.session.code_verifier = oauth.randomPKCECodeVerifier()
-      ),
-      code_challenge_method: 'S256',
-      // Generate and store state
-      state: req.session.oauth_state = oauth.randomState()
-    });
-    
+    const authUrl = await getAuthorizationUrl(config, req);
+
     // Redirect to authorization URL
-    res.redirect(authUrl.href);
+    res.redirect(authUrl);
   } catch (error) {
     logger.error('Login error:', error);
     next(error);
@@ -196,27 +169,25 @@ export const handleLogout = async (
 ): Promise<void> => {
   try {
     const request = req as AuthenticatedRequest;
-    
+
     // Get end session URL if we have an ID token
     let logoutUrl = '/';
-    
+
     if (request.oauthConfig && request.tokens?.id_token) {
-      const endSessionUrl = oauth.buildEndSessionUrl(
-        request.oauthConfig, 
-        {
-          id_token_hint: request.tokens.id_token,
-          post_logout_redirect_uri: `${process.env.BASE_URL || 'http://localhost:5555'}`
-        }
+      const endSessionUrl = getEndSessionUrl(
+        request.oauthConfig,
+        request.tokens.id_token,
+        `${process.env.BASE_URL || 'http://localhost:5555'}`
       );
-      logoutUrl = endSessionUrl.href;
+      logoutUrl = endSessionUrl.toString();
     }
-    
+
     // Clear session
     req.session.destroy((err) => {
       if (err) {
         logger.error('Error destroying session:', err);
       }
-      
+
       // Redirect to logout URL
       res.redirect(logoutUrl);
     });

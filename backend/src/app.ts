@@ -1,13 +1,12 @@
 // backend/src/app.ts
 import express, { Request, Response} from 'express';
 import cors from 'cors';
-import { logger } from './utils/logger';
-import { routes } from './routes';
-import { errorHandler } from './middleware/error-handler';
+import { logger } from '@/utils';
+import { routes } from '@/routes';
+import { errorHandler } from '@/middleware';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-// Rest of your application code
 // Initialize Express app
 const app = express();
 
@@ -20,7 +19,7 @@ app.use(express.urlencoded({ extended: false }));
 app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ status: 'ok' });
 });
-// console.log('===redis: ', process.env.REDIS_HOST);
+
 // Register routes
 app.use(routes);
 
@@ -28,10 +27,10 @@ app.use(routes);
 app.use(errorHandler);
 
 // Start server
-const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
-  logger.info(`Resource Server listening on port ${PORT}`);
-});
+// const PORT = process.env.PORT || 8000;
+// app.listen(PORT, () => {
+//   logger.info(`Resource Server listening on port ${PORT}`);
+// });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
