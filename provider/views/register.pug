@@ -1,3 +1,4 @@
+//- views/register.pug
 extends layout
 
 block content
@@ -30,4 +31,4 @@ block content
         input(type="submit", id="register", name="submit", value="Create Account")
     
     p Already have an account? 
-        a(href="/login") Log in
+        a(href=login_challenge ? `/login?login_challenge=${login_challenge}` : "/login") Log in

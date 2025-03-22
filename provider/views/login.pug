@@ -8,21 +8,32 @@ block content
     if query && query.registered === 'true'
         p.success Your account has been created. Please log in.
     
-    form(action=action, method="POST")
-        input(type="hidden", name="_csrf", value=csrfToken)
-        input(type="hidden", name="challenge", value=challenge)
-        table(style="")
-            tr
-                td
-                    input(type="email", id="email", name="email", value=hint, placeholder="email@foobar.com")
-            tr
-                td
-                    input(type="password", id="password", name="password")
-        input(type="checkbox", id="remember", name="remember", value="1")
-        label(for="remember") Remember me
-        br
-        input(type="submit", id="accept", name="submit", value="Log in")
-        input(type="submit", id="reject", name="submit", value="Deny access")
-    
-    p Don't have an account? 
-        a(href="/register") Create an account
+    if showOAuthLoginNote
+        //- This is displayed when a user has just registered but is not in an OAuth flow
+        p Your account has been created successfully. Please return to the application to log in.
+        a(href="http://localhost:5555") Return to application
+    else
+        //- Regular OAuth login form
+        if clientName
+            p Logging in to: #{clientName}
+            if requestedScopes && requestedScopes.length > 0
+                p Requested permissions: #{requestedScopes.join(', ')}
+        
+        form(action=action, method="POST")
+            input(type="hidden", name="_csrf", value=csrfToken)
+            input(type="hidden", name="challenge", value=challenge)
+            table(style="")
+                tr
+                    td
+                        input(type="email", id="email", name="email", value=hint, placeholder="email@foobar.com")
+                tr
+                    td
+                        input(type="password", id="password", name="password")
+            input(type="checkbox", id="remember", name="remember", value="1")
+            label(for="remember") Remember me
+            br
+            input(type="submit", id="accept", name="submit", value="Log in")
+            input(type="submit", id="reject", name="submit", value="Deny access")
+        
+        p Don't have an account? 
+            a(href=challenge ? `/register?login_challenge=${challenge}` : "/register") Create an account

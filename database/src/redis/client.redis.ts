@@ -2,20 +2,6 @@
 import { createClient } from "redis";
 import { logger } from "../config";
 
-// function getRedisConfig() {
-//   // TODO: Dev config (consider prod??????)
-//   return {
-//     url: `redis://${process.env.REDIS_PASSWORD ? `${process.env.REDIS_PASSWORD}@` : ''}redis:${process.env.REDIS_PORT}`,
-//     socket: {
-//       reconnectStrategy: (retries: number) => {
-//         const delay = Math.min(retries * 50, 2000);
-//         logger.info(`Retrying Redis connection in ${delay}ms...`);
-//         return delay;
-//       }
-//     }
-//   };
-// }
-
 function getRedisConfig() {
   const host = process.env.REDIS_HOST || 'localhost';
   const port = process.env.REDIS_PORT || '6379';
@@ -38,6 +24,7 @@ function getRedisConfig() {
 }
 
 const redisClient = createClient(getRedisConfig());
+// redisClient.PING
 
 redisClient.on("error", (err) => {
   logger.error("Redis Error", err);

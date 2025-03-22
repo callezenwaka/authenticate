@@ -3,7 +3,7 @@ import express, { Request, Response} from 'express';
 import cors from 'cors';
 import { logger } from '@/utils';
 import { routes } from '@/routes';
-import { errorHandler } from '@/middleware';
+import { errorMiddleware } from '@/middleware';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -24,7 +24,7 @@ app.get('/health', (req: Request, res: Response) => {
 app.use(routes);
 
 // Error handling middleware
-app.use(errorHandler);
+app.use(errorMiddleware);
 
 // Start server
 // const PORT = process.env.PORT || 8000;

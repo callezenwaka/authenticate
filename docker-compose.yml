@@ -90,19 +90,19 @@ services:
       - hydra-net
 
   # PostgreSQL database for Blog project
-  blog-postgres:
+  app-postgres:
     image: postgres:14
     ports:
       - "5433:5432"  # Using different host port to avoid conflicts
     environment:
-      - POSTGRES_USER=blog_user
-      - POSTGRES_PASSWORD=blog_password
-      - POSTGRES_DB=blog_db
+      - POSTGRES_USER=app_user
+      - POSTGRES_PASSWORD=app_password
+      - POSTGRES_DB=app_db
     volumes:
-      - blog-postgres-data:/var/lib/postgresql/data
+      - app-postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U blog_user -d blog_db"]
+      test: ["CMD-SHELL", "pg_isready -U app_user -d app_db"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -115,7 +115,7 @@ services:
       context: ./database
       dockerfile: Dockerfile
     depends_on:
-      - blog-postgres
+      - app-postgres
     environment:
       - NODE_ENV=development
     networks:
@@ -181,11 +181,11 @@ services:
   #     - TOKEN_ISSUER=http://localhost:4444/
   #     - TOKEN_AUDIENCE=http://localhost:8000
   #     - AUTH_URL=http://hydra:4445
-  #     - DB_HOST=blog-postgres
+  #     - DB_HOST=app-postgres
   #     - DB_PORT=5432
-  #     - DB_USER=blog_user
-  #     - DB_PASSWORD=blog_password
-  #     - DB_NAME=blog_db
+  #     - DB_USER=app_user
+  #     - DB_PASSWORD=app_password
+  #     - DB_NAME=app_db
   #     - REDIS_URL=redis://redis:6379
   #     - REDIS_HOST=redis
   #     # - REDIS_HOST=localhost
@@ -241,4 +241,4 @@ networks:
 volumes:
   redis-data:
   hydra-postgres-data:
-  blog-postgres-data:
+  app-postgres-data:

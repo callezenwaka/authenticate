@@ -1,0 +1,18 @@
+<!-- client/views/error.ejs -->
+<%- include('partials/header') %>
+
+<main class="container">
+  <div class="content">
+    <div class="error-content"> 
+      <!-- <h1><%= title %></h1> -->
+      <div class="alert alert-error">
+        <p><%= message %></p>
+      </div>
+      <div class="actions">
+        <a href="/" class="btn btn-primary">Back to Home</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

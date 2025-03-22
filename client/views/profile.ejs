@@ -1,0 +1,78 @@
+<%- include('partials/header') %>
+
+<div class="content">
+  <div class="page-header">
+    <h1>User Profile</h1>
+    <p>Information from your OpenID Connect ID token</p>
+  </div>
+
+  <div class="section">
+    <h2>User Information</h2>
+    <div class="card">
+      <div class="profile-info">
+        <div class="profile-avatar">
+          <div class="avatar">
+            <% const initial = (user.name || user.email || user.sub || 'U')[0].toUpperCase() %>
+            <%= initial %>
+          </div>
+        </div>
+        <div class="profile-details">
+          <h3><%= user.name || 'User' %></h3>
+          <p><strong>Subject:</strong> <%= user.sub %></p>
+          <% if (user.email) { %>
+            <p><strong>Email:</strong> <%= user.email %></p>
+          <% } %>
+          <% if (user.given_name || user.family_name) { %>
+            <p>
+              <% if (user.given_name) { %>
+                <strong>Given Name:</strong> <%= user.given_name %>
+              <% } %>
+              <% if (user.family_name) { %>
+                <strong>Family Name:</strong> <%= user.family_name %>
+              <% } %>
+            </p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Raw ID Token Claims</h2>
+    <div class="card code-card">
+      <pre><%= JSON.stringify(user, null, 2) %></pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Tokens</h2>
+    <div class="card code-card">
+      <h3>Access Token</h3>
+      <div class="token-info">
+        <p><strong>Expires:</strong> <%= new Date(tokens.expires_at * 1000).toLocaleString() %></p>
+        <pre class="token"><%= tokens.access_token %></pre>
+      </div>
+
+      <% if (tokens.refresh_token) { %>
+        <h3>Refresh Token</h3>
+        <div class="token-info">
+          <pre class="token"><%= tokens.refresh_token %></pre>
+        </div>
+      <% } %>
+
+      <% if (tokens.id_token) { %>
+        <h3>ID Token</h3>
+        <div class="token-info">
+          <pre class="token"><%= tokens.id_token %></pre>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="actions">
+    <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+    <a href="/" class="btn btn-secondary">Back to Home</a>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,54 @@
+<!-- client/views/home.ejs -->
+<%- include('partials/header') %>
+
+  <main class="container">
+    <div class="content">
+      <div class="hero-section">
+        <h1>Welcome to the Demo Client Application</h1>
+        <p>This application demonstrates OAuth 2.0 and OpenID Connect integration with Ory Hydra.</p>
+
+        <div class="hero-actions">
+          <% if (isAuthenticated) { %>
+            <p>Welcome back, <%= user.name || user.email || user.sub %>!</p>
+            <div class="button-group">
+              <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+              <a href="/profile" class="btn btn-secondary">View Profile</a>
+            </div>
+            <% } else { %>
+              <p>You are not logged in.</p>
+              <a href="/login" class="btn btn-primary">Log In</a>
+              <% } %>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Public API Data</h2>
+        <div class="card">
+          <% if (blogs) { %>
+            <pre><%= JSON.stringify(blogs, null, 2) %></pre>
+          <% } else { %>
+            <p>No public data available.</p>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Authentication Flow</h2>
+        <ol>
+          <li>User visits client application and clicks "Login"</li>
+          <li>Client redirects to Hydra with an authorization request</li>
+          <li>Hydra redirects to the identity provider's login page</li>
+          <li>User enters credentials</li>
+          <li>Upon successful login, the identity provider tells Hydra the login was successful</li>
+          <li>Hydra redirects to the identity provider's consent page</li>
+          <li>User grants or denies consent for the requested scopes</li>
+          <li>Upon consent, the identity provider tells Hydra the consent was granted</li>
+          <li>Hydra redirects back to the client with an authorization code</li>
+          <li>Client exchanges the code for tokens</li>
+          <li>Client can now use the access token to call the resource server</li>
+        </ol>
+      </div>
+    </div>
+  </main>
+
+<%- include('partials/footer') %>

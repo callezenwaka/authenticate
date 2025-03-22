@@ -5,15 +5,13 @@ import { Blog, User } from '../entities';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-console.log('=============== ', process.env.DB_HOST);
-
 export const dbConfig: DataSourceOptions = {
   type: 'postgres',
-  host: process.env.DB_HOST || 'blog-postgres',
+  host: process.env.DB_HOST || 'app-postgres',
   port: parseInt(process.env.DB_PORT || '5432'),
-  username: process.env.DB_USERNAME || 'blog_user',
-  password: process.env.DB_PASSWORD || 'blog_password',
-  database: process.env.DB_NAME || 'blog_db',
+  username: process.env.DB_USERNAME || 'app_user',
+  password: process.env.DB_PASSWORD || 'app_password',
+  database: process.env.DB_NAME || 'app_db',
   synchronize: true,
   logging: true,
   // entities: ['src/entity/**/*.ts'],

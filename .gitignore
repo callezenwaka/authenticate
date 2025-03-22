@@ -36,6 +36,4 @@ temp/
 
 # notes
 NOTES.md
-docker-compose-dev.yml
-bin
-identity-provider
+_bin

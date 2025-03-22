@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { logger } from '@/utils';
+import { logger } from '../utils';
 
-export const errorHandler = (
+export const errorMiddleware = (
   err: any,
   req: Request,
   res: Response,

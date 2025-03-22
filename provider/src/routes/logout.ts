@@ -1,5 +1,4 @@
-// Copyright © 2025 Ory Corp
-// SPDX-License-Identifier: Apache-2.0
+// provider/src/routes/logout.ts
 
 import express from "express"
 import url from "url"
@@ -32,7 +31,7 @@ router.get("/", csrfProtection, (req, res, next) => {
       res.render("logout", {
         csrfToken: req.csrfToken(),
         challenge: challenge,
-        action: urljoin(process.env.BASE_URL || "", "/logout"),
+        action: urljoin(process.env.BASE_URL || "http://localhost:3000", "/logout"),
         pageTitle: "Authenticate | Logout Page"
       })
     })

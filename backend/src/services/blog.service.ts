@@ -1,6 +1,6 @@
+// backend/src/services/blog.service.ts
 import { Blog, getBlogRepository } from '@authenticate/database';
-// import { getBlogRepository } from '@authenticate/database';
-import { CreateBlogDto, UpdateBlogDto } from '../types/request.type';
+import { CreateBlogDto, UpdateBlogDto } from '../types';
 
 export class BlogService {
   async findAll(): Promise<Blog[]> {

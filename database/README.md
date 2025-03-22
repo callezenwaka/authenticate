@@ -17,7 +17,7 @@ npm run migration:run
 
 ```bash
 # Quick run
-docker-compose down -v && docker-compose up -d blog-postgres database redis
+docker-compose down -v && docker-compose up -d app-postgres database redis
 
 # Show logs
 docker-compose logs database
@@ -49,10 +49,10 @@ docker-compose exec database npm run seed
 
 ## To access PostgreSQL CLI:
 ```bash
-docker-compose exec database psql -U postgres -d blog_db
+docker-compose exec database psql -U postgres -d app_db
 
 # Connect to DB
-docker exec -it authenticate-blog-postgres-1 psql -U blog_user -d blog_db
+docker exec -it authenticate-app-postgres-1 psql -U app_user -d app_db
 ```
 
 ## For a complete reset (useful during development):
@@ -64,7 +64,7 @@ docker-compose exec database npm run reset
 
 ## Start the containers:
 ```bash 
-docker-compose up -d blog-postgres database
+docker-compose up -d app-postgres database
 ```
 
 ## Check if migrations completed successfully:
@@ -77,4 +77,3 @@ docker-compose logs -f database
 docker-compose exec database npm run migration:run
 docker-compose exec database npm run seed
 ```
-

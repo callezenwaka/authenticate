@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 const env = process.env.NODE_ENV || 'development';
-// const host = process.env.DB_HOST || config.host || 'blog-postgres';
+// const host = process.env.DB_HOST || config.host || 'app-postgres';
 
 // Export the DataSource directly (this is what TypeORM CLI needs)
 const AppDataSource = new DataSource({

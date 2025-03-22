@@ -82,7 +82,7 @@ router.get("/", csrfProtection, (req, res, next) => {
         requested_scope: consentRequest.requested_scope,
         user: consentRequest.subject,
         client: consentRequest.client,
-        action: urljoin(process.env.BASE_URL || "", "/consent"),
+        action: urljoin(process.env.BASE_URL || "http://localhost:3000", "/consent"),
         pageTitle: "Authenticate | Consent Page",
       })
     })

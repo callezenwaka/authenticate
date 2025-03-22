@@ -1,0 +1,33 @@
+<!-- client/views/partials/header.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle %> | Demo Client App</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="main-header">
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <a href="/">Demo Client</a>
+        </div>
+        <nav class="main-nav">
+          <ul>
+            <li><a href="/">Home</a></li>
+            <% if (locals.isAuthenticated) { %>
+              <li><a href="/dashboard">Dashboard</a></li>
+              <li><a href="/profile">Profile</a></li>
+              <li><a href="/logout">Log Out</a></li>
+            <% } else { %>
+              <li><a href="/login">Log In</a></li>
+            <% } %>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+  
+  <!-- <main class="container"> -->

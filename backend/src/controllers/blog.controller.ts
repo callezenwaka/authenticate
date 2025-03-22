@@ -1,12 +1,14 @@
+// backend/src/controllers/blog.controller.ts
 import { Request, Response, NextFunction } from 'express';
 import { BlogService } from '../services';
-import { CreateBlogDto, UpdateBlogDto } from '../types/request.type';
+import { CreateBlogDto, UpdateBlogDto } from '../types';
 
 export class BlogController {
   constructor(private blogService = new BlogService()) {}
 
   getAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      // console.log(req);
       const blogs = await this.blogService.findAll();
       res.json({ success: true, data: blogs });
     } catch (error) {
