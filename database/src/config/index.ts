@@ -1,6 +1,5 @@
 // database/src/config/index.ts
 export { getPoolConfig } from './pool.config';
-export { loggerConfig, logger } from './logger.config';
 import { dbConfig } from './database.config';
 
 import * as dotenv from 'dotenv';

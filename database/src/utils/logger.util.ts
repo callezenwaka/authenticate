@@ -1,3 +1,4 @@
+// backend/src/utils/logger.ts
 type LogLevel = 'info' | 'warn' | 'error' | 'debug';
 
 export const loggerConfig = {

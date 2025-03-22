@@ -1,7 +1,8 @@
 // database/src/index.ts
 import { DataSource } from 'typeorm';
-import { getPoolConfig, config, logger } from './config';
 import { PostgresDriver } from "typeorm/driver/postgres/PostgresDriver";
+import { getPoolConfig, config, } from './config';
+import { logger } from './utils';
 import * as dotenv from 'dotenv';
 dotenv.config();
 

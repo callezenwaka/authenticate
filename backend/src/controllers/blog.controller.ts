@@ -8,7 +8,6 @@ export class BlogController {
 
   getAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // console.log(req);
       const blogs = await this.blogService.findAll();
       res.json({ success: true, data: blogs });
     } catch (error) {

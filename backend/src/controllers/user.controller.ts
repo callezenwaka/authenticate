@@ -1,7 +1,7 @@
-// node-service/src/controllers/user.controller.ts
+// backend/src/controllers/user.controller.ts
 import { Request, Response, NextFunction } from 'express';
-import { UserService } from '../services/user.service';
-import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../types/user.types';
+import { UserService } from '../services';
+import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../types';
 
 export class UserController {
   constructor(private userService = new UserService()) {}

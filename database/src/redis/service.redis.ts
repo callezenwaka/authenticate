@@ -1,6 +1,7 @@
+// database/src/redis/service.redis.ts
 import redisClient from './client.redis';
 import keyManager from './manager.redis';
-import { logger } from '../config';
+import { logger } from '../utils';
 
 /**
  * Default TTL in seconds (5 minutes)
@@ -52,7 +53,7 @@ export class CacheService {
    * @param entity - Entity type (e.g., 'blog', 'user')
    * @param id - Optional entity identifier
    * @param subtype - Optional subtype or category
-   * @returns Parsed data or null if not found
+   * @returns Parsed data or null
    */
   async get<T>(
     entity: string, 
@@ -96,8 +97,12 @@ export class CacheService {
    */
   async isAvailable(): Promise<boolean> {
     try {
-      const pingResult = await redisClient.ping();
-      return pingResult === 'PONG';
+      // Try a basic Redis operation to check connection
+      const testKey = `${this.serviceName}:connection:test:${Date.now()}`;
+      await redisClient.set(testKey, '1');
+      const result = await redisClient.get(testKey);
+      await redisClient.del(testKey);
+      return result === '1';
     } catch (error) {
       return false;
     }
@@ -122,8 +127,8 @@ export class CacheService {
      * Get all cached blogs
      * @returns Array of blogs or null
      */
-    getAll: async <T>(): Promise<T[] | null> => {
-      return this.get<T[]>('blog', undefined, 'all');
+    getAll: async <T = any[]>(): Promise<T | null> => {
+      return this.get<T>('blog', undefined, 'all');
     },
     
     /**
@@ -141,7 +146,7 @@ export class CacheService {
      * @param id - Blog ID
      * @returns Blog data or null
      */
-    getSingle: async <T>(id: string): Promise<T | null> => {
+    getSingle: async <T = any>(id: string): Promise<T | null> => {
       return this.get<T>('blog', id);
     },
     
