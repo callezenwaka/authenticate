@@ -3,8 +3,7 @@ import { User } from '@authenticate/database';
 import { getUserRepository } from '@authenticate/database';
 // import { redisClient, } from "@authenticate/database";
 import * as crypto from 'crypto';
-import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../types/user.types';
-// console.log('redisClient: ', redisClient);
+import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../types';
 
 export class UserService {
   // Simple password hashing for demo purposes

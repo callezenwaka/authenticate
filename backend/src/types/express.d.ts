@@ -5,7 +5,7 @@ declare global {
   namespace Express {
     interface Request {
       dbAvailable?: boolean;
-      redisAvailable?: boolean;
+      // redisAvailable?: boolean;
       // Add other custom properties here as needed
     }
     
@@ -14,7 +14,7 @@ declare global {
         databaseAvailable?: boolean;
         reconnectAttempts?: number;
         dbReconnectionExhausted?: boolean;
-        redisAvailable?: boolean;
+        // redisAvailable?: boolean;
         // Add other app-level properties here as needed
       }
     }

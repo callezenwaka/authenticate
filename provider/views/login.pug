@@ -11,7 +11,7 @@ block content
     if showOAuthLoginNote
         //- This is displayed when a user has just registered but is not in an OAuth flow
         p Your account has been created successfully. Please return to the application to log in.
-        a(href="http://localhost:5555") Return to application
+        a(href=redirect_url) Return to application
     else
         //- Regular OAuth login form
         if clientName
@@ -22,6 +22,8 @@ block content
         form(action=action, method="POST")
             input(type="hidden", name="_csrf", value=csrfToken)
             input(type="hidden", name="challenge", value=challenge)
+            //- Add the hidden field for redirect URL
+            input(type="hidden", name="redirect_url", value=redirect_url)
             table(style="")
                 tr
                     td

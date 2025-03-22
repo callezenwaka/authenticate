@@ -15,13 +15,10 @@
 
 import { Router } from 'express';
 import { BlogController } from '../controllers';
-import { databaseMiddleware, redisMiddleware } from '../middleware';
+import { databaseMiddleware } from '../middleware';
 
 const router = Router();
 const blogController = new BlogController();
-
-// Apply Redis check middleware to all routes to detect Redis availability
-router.use(redisMiddleware);
 
 // Read operations (can work with cached data from Redis)
 router.get('/', databaseMiddleware(false), blogController.getAll);

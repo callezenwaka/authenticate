@@ -3,7 +3,7 @@ import express from "express";
 import url from "url";
 import urljoin from "url-join";
 import csrf from "csurf";
-import { userService } from "../services/user";
+import { UserController } from '../controllers';
 import { databaseMiddleware } from "../middleware";
 
 // Sets up csrf protection
@@ -14,6 +14,8 @@ const csrfProtection = csrf({
 });
 
 const router = express.Router();
+
+const userController = new UserController();
 
 router.use(databaseMiddleware(true));
 
@@ -58,7 +60,8 @@ router.post("/", csrfProtection, async (req, res, next) => {
     
     try {
       // Create user
-      await userService.createUser(email, password, name);
+      const response = await userController.create(email, password, name);
+      console.log(response);
       
       // Redirect to login with success message
       // Include the login challenge if it exists
