@@ -30,23 +30,6 @@ export class UserController {
     }
   };
 
-  create = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userData: CreateUserDto = req.body;
-      const newUser = await this.userService.create(userData);
-      
-      // Remove password hash from response
-      const { passwordHash, ...userResponse } = newUser;
-      
-      res.status(201).json({ success: true, data: userResponse });
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('already exists')) {
-        return res.status(409).json({ success: false, message: error.message });
-      }
-      next(error);
-    }
-  };
-
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id;
@@ -81,29 +64,46 @@ export class UserController {
     }
   };
 
-  login = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const loginData: LoginUserDto = req.body;
-      const user = await this.userService.authenticate(loginData);
+  // create = async (req: Request, res: Response, next: NextFunction) => {
+  //   try {
+  //     const userData: CreateUserDto = req.body;
+  //     const newUser = await this.userService.create(userData);
       
-      if (!user) {
-        return res.status(401).json({ 
-          success: false, 
-          message: 'Invalid username or password' 
-        });
-      }
+  //     // Remove password hash from response
+  //     const { passwordHash, ...userResponse } = newUser;
       
-      // For now, we'll just return the user
-      // Later, we'll integrate with Hydra for proper token issuance
-      const { passwordHash, ...userResponse } = user;
+  //     res.status(201).json({ success: true, data: userResponse });
+  //   } catch (error) {
+  //     if (error instanceof Error && error.message.includes('already exists')) {
+  //       return res.status(409).json({ success: false, message: error.message });
+  //     }
+  //     next(error);
+  //   }
+  // };
+
+  // login = async (req: Request, res: Response, next: NextFunction) => {
+  //   try {
+  //     const loginData: LoginUserDto = req.body;
+  //     const user = await this.userService.authenticate(loginData);
       
-      res.json({ 
-        success: true, 
-        message: 'Login successful',
-        data: userResponse
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
+  //     if (!user) {
+  //       return res.status(401).json({ 
+  //         success: false, 
+  //         message: 'Invalid username or password' 
+  //       });
+  //     }
+      
+  //     // For now, we'll just return the user
+  //     // Later, we'll integrate with Hydra for proper token issuance
+  //     const { passwordHash, ...userResponse } = user;
+      
+  //     res.json({ 
+  //       success: true, 
+  //       message: 'Login successful',
+  //       data: userResponse
+  //     });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
 }

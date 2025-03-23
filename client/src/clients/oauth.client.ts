@@ -23,7 +23,7 @@ export const initOAuthClient = async (): Promise<OAuthConfig> => {
   try {
     if (config) return config;
 
-    const issuerUrl = process.env.ISSUER_BASE_URL || 'http://localhost:4444/';
+    const issuerUrl = process.env.ISSUER_BASE_URL;
     logger.debug(`Discovering OpenID Connect issuer at ${issuerUrl}`);
 
     // Fetch OpenID Connect configuration
@@ -40,6 +40,7 @@ export const initOAuthClient = async (): Promise<OAuthConfig> => {
       redirectUri: `${process.env.BASE_URL || 'http://localhost:5555'}/oauth2/callback`,
       endSessionEndpoint: discovery.end_session_endpoint,
       scopes: ['openid', 'profile', 'email'],
+      audience: process.env.API_URL!,
     };
 
     logger.info('Discovered issuer %s', config.issuer);
@@ -49,19 +50,6 @@ export const initOAuthClient = async (): Promise<OAuthConfig> => {
     throw error;
   }
 };
-
-/**
- * Generate a random string
- */
-// const generateRandomString = (length: number): string => {
-//   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-//   let result = '';
-//   const charactersLength = characters.length;
-//   for (let i = 0; i < length; i++) {
-//     result += characters.charAt(Math.floor(Math.random() * charactersLength));
-//   }
-//   return result;
-// };
 
 /**
  * Get authorization URL
@@ -95,7 +83,8 @@ export const getAuthorizationUrl = async (
     scope,
     state,
     code_challenge,
-    code_challenge_method: 'S256'
+    code_challenge_method: 'S256',
+    audience: config.audience,
   }).toString();
 
   return `${config.authorizationEndpoint}?${params}`;
@@ -126,7 +115,8 @@ export const handleCallback = async (
       grant_type: 'authorization_code',
       code: currentUrl.searchParams.get('code') || '',
       redirect_uri: config.redirectUri,
-      code_verifier
+      code_verifier,
+      audience: config.audience,
     }).toString();
 
     const response = await axios.post(config.tokenEndpoint, params, {
@@ -158,7 +148,8 @@ export const refreshToken = async (
       client_id: config.clientId,
       client_secret: config.clientSecret,
       grant_type: 'refresh_token',
-      refresh_token: refreshToken
+      refresh_token: refreshToken,
+      audience: config.audience,
     }).toString();
 
     const response = await axios.post(config.tokenEndpoint, params, {
@@ -269,6 +260,5 @@ export const getEndSessionUrl = (
     params.append('id_token_hint', idToken);
   }
 
-  // return `${config.issuer}/logout?${params.toString()}`;
   return `${config.endSessionEndpoint}?${params.toString()}`;
 };

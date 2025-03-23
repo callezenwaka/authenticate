@@ -7,12 +7,12 @@ dotenv.config();
 
 export const config = {
   app: {
-    port: process.env.PORT || 8000,
+    port: process.env.PORT,
     env: process.env.NODE_ENV || 'development',
-    apiUrl: process.env.API_URL || 'http://localhost:8000',
+    apiUrl: process.env.API_URL,
   },
   cors: {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: process.env.CORS_ORIGIN,
     credentials: true
   },
   database: dbConfig

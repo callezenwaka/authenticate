@@ -2,33 +2,36 @@
 extends layout
 
 block content
-    h1(id="register-title") Create an Account
-    if error
-        p.error #{error}
-    form(action=action, method="POST")
-        input(type="hidden", name="_csrf", value=csrfToken)
-        table
-            tr
-                td
-                    label(for="email") Email
-                td
-                    input(type="email", id="email", name="email", value=email || "", required)
-            tr
-                td
-                    label(for="password") Password
-                td
-                    input(type="password", id="password", name="password", required)
-            tr
-                td
-                    label(for="password_confirm") Confirm Password
-                td
-                    input(type="password", id="password_confirm", name="password_confirm", required)
-            tr
-                td
-                    label(for="name") Full Name (Optional)
-                td
-                    input(type="text", id="name", name="name", value=name || "")
-        input(type="submit", id="register", name="submit", value="Create Account")
-    
-    p Already have an account? 
-        a(href=login_challenge ? `/login?login_challenge=${login_challenge}` : "/login") Log in
+    main.container
+        h1(id="register-title") Create an Account
+        if error
+            p.error #{error}
+        form(action=action, method="POST")
+            input(type="hidden", name="_csrf", value=csrfToken)
+            input(type="hidden", name="redirect_url", value=redirect_url)
+            input(type="hidden", name="login_challenge", value=login_challenge)
+            table
+                tr
+                    td
+                        label(for="email") Email
+                    td
+                        input(type="email", id="email", name="email", value=email || "", required)
+                tr
+                    td
+                        label(for="password") Password
+                    td
+                        input(type="password", id="password", name="password", required)
+                tr
+                    td
+                        label(for="password_confirm") Confirm Password
+                    td
+                        input(type="password", id="password_confirm", name="password_confirm", required)
+                tr
+                    td
+                        label(for="username") Full Name (Optional)
+                    td
+                        input(type="text", id="username", name="username", value=username || "")
+            input(type="submit", id="register", name="submit", value="Create Account" class="btn btn-primary")
+        
+        p Already have an account? 
+            a(href=login_challenge ? `/login?login_challenge=${login_challenge}` : "/login") Log in

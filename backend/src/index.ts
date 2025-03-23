@@ -40,6 +40,7 @@ async function bootstrap() {
       logger.info('Database connection established. Full functionality available.');
       app.locals.databaseAvailable = true;
     } catch (dbError) {
+      logger.error(String(dbError));
       let databaseError = dbError instanceof Error ? dbError.message : String(dbError);
       logger.warn('Database connection failed. Operating in limited functionality mode:', databaseError);
       app.locals.databaseAvailable = false;

@@ -26,12 +26,6 @@ app.use(routes);
 // Error handling middleware
 app.use(errorMiddleware);
 
-// Start server
-// const PORT = process.env.PORT || 8000;
-// app.listen(PORT, () => {
-//   logger.info(`Resource Server listening on port ${PORT}`);
-// });
-
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
   logger.error('Uncaught Exception:', error);

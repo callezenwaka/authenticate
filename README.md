@@ -63,6 +63,27 @@ Each package has its own `.env` file for configuration. Example environment vari
 
 ### Development
 
+Spin in hybrid
+```bash
+# Start docker components
+docker-compose down -v && docker-compose up -d
+
+# Comfirm database is running
+docker exec -it authenticate-app-postgres-1 psql -U app_user -d app_db
+
+# Confirm hydra logs
+docker logs --tail 20 authenticate-hydra-1
+
+# Start backend server
+npm run dev # npm run start:dev - for initialization
+
+# Start provider server
+npm run dev # npm run start:dev - for initialization
+
+# Start client server
+npm run dev
+```
+
 Each component is in its own package under the root directory:
 
 - `provider`: The authentication service

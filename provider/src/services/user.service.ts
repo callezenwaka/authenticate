@@ -5,7 +5,7 @@ import { logger } from '../utils';
 import { CreateUserDto, LoginUserDto } from '../types';
 
 export class UserService {
-  async createUser(userData: CreateUserDto): Promise<User> {
+  async registerUser(userData: CreateUserDto): Promise<User> {
     try {
     const userRepository = await getUserRepository();
     
@@ -39,7 +39,7 @@ export class UserService {
   }
   }
 
-  async authenticateUser(userData: LoginUserDto) {
+  async loginUser(userData: LoginUserDto) {
     try {
       // Get user from database
       const userRepository = await getUserRepository();
@@ -49,7 +49,6 @@ export class UserService {
       
       // If no user exists with this email
       if (!user) {
-        // return null;
         throw new Error('Invalid email or password: INVALID_CREDENTIALS');
       }
       
@@ -57,7 +56,6 @@ export class UserService {
       const passwordMatch = await bcrypt.compare(userData.password, user.passwordHash);
       
       if (!passwordMatch) {
-        // return null;
         throw new Error('Invalid email or password: INVALID_CREDENTIALS');
       }
 
@@ -65,7 +63,6 @@ export class UserService {
       logger.info(`Successful login: ${user.sub}`);
       
       // Return user data (excluding password)
-      // const { passwordHash: _, ...authUser } = user;
       return user;
     } catch (error) {
       logger.error('Authentication error:', error);

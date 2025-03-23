@@ -44,6 +44,7 @@ export interface AuthenticatedRequest extends Request {
 		id_token?: string;
 		expires_in?: number;
 		token_type: string;
+		scope?: string;
 	};
 	services?: ProviderClient; // Service provider made available through middleware
 }
@@ -58,6 +59,7 @@ export interface OAuthConfig {
 	endSessionEndpoint?: string; // Optional
 	redirectUri: string;
 	scopes: string[];
+	audience: string;
 }
 
 export interface CustomToken {
@@ -68,15 +70,3 @@ export interface CustomToken {
 	token_type: string;
 	scope?: string;
 }
-
-// export interface OAuthConfig {
-// 	issuer: string;
-// 	authorizationEndpoint: string;
-// 	tokenEndpoint: string;
-// 	userInfoEndpoint: string;
-// 	clientId: string;
-// 	clientSecret: string;
-// 	redirectUri: string;
-// 	serverMetadata?: any;
-// 	timeout?: number;
-// }

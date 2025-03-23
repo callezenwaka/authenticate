@@ -1,6 +1,7 @@
 // postgresql-database/src/seeds/run-seeds.ts
 import { getDataSource, closeDatabase } from '../index';
 import { blogSeedData } from './blog.seed';
+import { logger } from "../utils";
 
 type SeedFunction = () => Promise<void>;
 
@@ -16,7 +17,7 @@ const seeders: Record<string, SeedFunction[]> = {
       
       // Insert seed data
       await blogRepository.save(blogSeedData);
-      console.log(`Seeded ${blogSeedData.length} blog records for development`);
+      logger.info(`Seeded ${blogSeedData.length} blog records for development`);
     }
   ],
   
@@ -29,7 +30,7 @@ const seeders: Record<string, SeedFunction[]> = {
       // Maybe just add some initial admin content or default settings
       const productionSeeds = blogSeedData.slice(0, 1); // Just one sample post
       await blogRepository.save(productionSeeds);
-      console.log(`Seeded ${productionSeeds.length} blog records for production`);
+      logger.info(`Seeded ${productionSeeds.length} blog records for production`);
     }
   ],
   
@@ -44,7 +45,7 @@ const seeders: Record<string, SeedFunction[]> = {
       // Maybe just a couple test records
       const testSeeds = blogSeedData.slice(0, 2);
       await blogRepository.save(testSeeds);
-      console.log(`Seeded ${testSeeds.length} blog records for testing`);
+      logger.info(`Seeded ${testSeeds.length} blog records for testing`);
     }
   ]
 };
@@ -53,7 +54,7 @@ async function seedDatabase() {
   try {
     // Get the environment
     const env = process.env.NODE_ENV || 'development';
-    console.log(`Seeding database for ${env} environment`);
+    logger.info(`Seeding database for ${env} environment`);
     
     // Get the appropriate seeders
     const envSeeders = seeders[env] || seeders.development;
@@ -63,10 +64,10 @@ async function seedDatabase() {
       await seeder();
     }
     
-    console.log('Seeding completed successfully');
+    logger.info('Seeding completed successfully');
     await closeDatabase();
   } catch (error) {
-    console.error('Error seeding database:', error);
+    logger.error('Error seeding database:', error);
     process.exit(1);
   }
 }
@@ -76,7 +77,7 @@ if (require.main === module) {
   seedDatabase()
     .then(() => process.exit(0))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       process.exit(1);
     });
 }

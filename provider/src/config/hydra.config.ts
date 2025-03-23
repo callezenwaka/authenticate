@@ -1,14 +1,15 @@
 // src/config/index.ts
 
 import { Configuration, OAuth2Api } from "@ory/hydra-client-fetch"
+import { logger } from "../utils";
 
 const baseOptions: any = {
   timeout: 15000, // 15 seconds should be plenty
 }
 // Use localhost to connect to the Hydra admin API
-const HYDRA_ADMIN_URL = process.env.HYDRA_ADMIN_URL || 'http://localhost:4445';
+const HYDRA_ADMIN_URL = process.env.HYDRA_ADMIN_URL;
 
-console.log(`Connecting to Hydra Admin API at: ${HYDRA_ADMIN_URL}`);
+logger.info(`Connecting to Hydra Admin API at: ${HYDRA_ADMIN_URL}`);
 
 if (process.env.MOCK_TLS_TERMINATION) {
   baseOptions.headers = { "X-Forwarded-Proto": "https" }

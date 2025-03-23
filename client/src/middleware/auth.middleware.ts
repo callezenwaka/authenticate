@@ -5,9 +5,7 @@ import { logger } from '../utils';
 import { 
   AuthenticatedRequest, 
   UserInfo, 
-  CustomToken, 
-  OAuthConfig 
-} from '@/types';
+  CustomToken} from '@/types';
 import { 
   initOAuthClient, 
   refreshToken, 
@@ -177,7 +175,6 @@ export const handleLogin = async (
 
     // Get authorization URL with PKCE
     const authUrl = await getAuthorizationUrl(config, req);
-    console.log('========== authUrl =========: ', authUrl);
 
     // Redirect to authorization URL
     res.redirect(authUrl);
@@ -205,7 +202,7 @@ export const handleLogout = async (
       const endSessionUrl = getEndSessionUrl(
         request.oauthConfig,
         request.tokens.id_token,
-        `${process.env.BASE_URL || 'http://localhost:5555'}`
+        `${process.env.BASE_URL}`
       );
       logoutUrl = endSessionUrl.toString();
     }

@@ -16,7 +16,7 @@ export const getPoolConfig = (env: string) => {
 	// Default development pool settings
 	return {
 		extra: {
-			max: 5,
+			max: process.env.DB_POOL_SIZE,
 			connectionTimeoutMillis: 30000
 		},
 		maxQueryExecutionTime: 10000

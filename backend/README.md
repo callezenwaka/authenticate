@@ -1,4 +1,4 @@
-# @authenticate/database
+# Backend
 
 This package contains the shared database functionality for the Authenticate application.
 

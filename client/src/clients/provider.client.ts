@@ -1,3 +1,4 @@
+// client/src/clients/provider.client.ts
 import { initOAuthClient, refreshToken } from '../clients';
 import { redisToken } from '../redis';
 import { logger } from '../utils';
@@ -8,18 +9,6 @@ import {
   UserService, 
   createUserService 
 } from '../services';
-
-/**
- * Custom Token Type
- */
-// interface CustomToken {
-//   access_token: string;
-//   refresh_token?: string;
-//   id_token?: string;
-//   expires_in?: number;
-//   token_type: string;
-// 	scope?: string;
-// }
 
 /**
  * Enhanced Service Provider that uses Redis for token management
@@ -33,7 +22,7 @@ export class ProviderClient {
   private userId?: string;
 
   constructor(apiBaseUrl?: string) {
-    this.apiBaseUrl = apiBaseUrl || process.env.API_URL || 'http://localhost:8000';
+    this.apiBaseUrl = apiBaseUrl || process.env.API_URL!;
   }
 
   /**

@@ -2,40 +2,43 @@
 extends layout
 
 block content
-    h1(id="login-title") Please log in
-    if error
-        p.error #{error}
-    if query && query.registered === 'true'
-        p.success Your account has been created. Please log in.
-    
-    if showOAuthLoginNote
-        //- This is displayed when a user has just registered but is not in an OAuth flow
-        p Your account has been created successfully. Please return to the application to log in.
-        a(href=redirect_url) Return to application
-    else
-        //- Regular OAuth login form
-        if clientName
-            p Logging in to: #{clientName}
-            if requestedScopes && requestedScopes.length > 0
-                p Requested permissions: #{requestedScopes.join(', ')}
+    main.container
+
+        h1(id="login-title") Please log in
+        if error
+            p.error #{error}
+        if query && query.registered === 'true'
+            p.success Your account has been created. Please log in.
         
-        form(action=action, method="POST")
-            input(type="hidden", name="_csrf", value=csrfToken)
-            input(type="hidden", name="challenge", value=challenge)
-            //- Add the hidden field for redirect URL
-            input(type="hidden", name="redirect_url", value=redirect_url)
-            table(style="")
-                tr
-                    td
-                        input(type="email", id="email", name="email", value=hint, placeholder="email@foobar.com")
-                tr
-                    td
-                        input(type="password", id="password", name="password")
-            input(type="checkbox", id="remember", name="remember", value="1")
-            label(for="remember") Remember me
-            br
-            input(type="submit", id="accept", name="submit", value="Log in")
-            input(type="submit", id="reject", name="submit", value="Deny access")
-        
-        p Don't have an account? 
-            a(href=challenge ? `/register?login_challenge=${challenge}` : "/register") Create an account
+        if showOAuthLoginNote
+            //- This is displayed when a user has just registered but is not in an OAuth flow
+            p Your account has been created successfully. Please return to the application to log in.
+            a(href=redirect_url) Return to application
+        else
+            //- Regular OAuth login form
+            if clientName
+                p Logging in to: #{clientName}
+                if requestedScopes && requestedScopes.length > 0
+                    p Requested permissions: #{requestedScopes.join(', ')}
+            
+            form(action=action, method="POST")
+                input(type="hidden", name="_csrf", value=csrfToken)
+                input(type="hidden", name="challenge", value=challenge)
+                //- Add the hidden field for redirect URL
+                input(type="hidden", name="redirect_url", value=redirect_url)
+                table(style="")
+                    tr
+                        td
+                            input(type="email", id="email", name="email", value=hint, placeholder="email@foobar.com")
+                    tr
+                        td
+                            input(type="password", id="password", name="password")
+                input(type="checkbox", id="remember", name="remember", value="1")
+                label(for="remember") Remember me
+                br
+                .button-group
+                    input(type="submit", id="accept", name="submit", value="Log in" class="btn btn-primary")
+                    input(type="submit", id="reject", name="submit", value="Deny access" class="btn btn-primary")
+            
+            p Don't have an account? 
+                a(href=challenge ? `/register?login_challenge=${challenge}` : "/register") Create an account

@@ -1,3 +1,4 @@
+// database/src/seeds/blog.seed.ts
 import { Blog } from '../entities';
 
 export const blogSeedData: Partial<Blog>[] = [

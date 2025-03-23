@@ -14,32 +14,6 @@ import {
 
 export class UserService extends BaseService {
   /**
-   * Register new user
-   */
-  async registerUser(user: UserRegistration): Promise<ApiResponseData<User>> {
-    try {
-      const response = await this.api.post('/users/register', user);
-      return { data: response.data };
-    } catch (error) {
-      logger.error('Error registering user:', error);
-      return { data: null, error: (error as any).error };
-    }
-  }
-
-  /**
-   * Login with username/password (direct API login, not OAuth)
-   */
-  async loginUser(credentials: UserCredentials): Promise<ApiResponseData<AuthResponse>> {
-    try {
-      const response = await this.api.post('/users/login', credentials);
-      return { data: response.data };
-    } catch (error) {
-      logger.error('Error logging in:', error);
-      return { data: null, error: (error as any).error };
-    }
-  }
-
-  /**
    * Get all users (requires authentication)
    */
   async getAllUsers(): Promise<ApiResponseData<User[]>> {
@@ -118,7 +92,7 @@ export class UserService extends BaseService {
  * Factory function to create user service
  */
 export const createUserService = (
-  baseURL: string = process.env.API_URL || 'http://localhost:8000',
+  baseURL: string = process.env.API_URL!,
   tokenResponse?: CustomToken,
   config?: OAuthConfig
 ): UserService => {

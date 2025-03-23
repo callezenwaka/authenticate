@@ -8,5 +8,6 @@ html(lang="en")
     title= pageTitle
     link(rel='stylesheet', href='/css/styles.css')
   body
-    .container
-      block content
+    include partials/header
+    block content
+    include partials/footer

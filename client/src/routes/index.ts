@@ -19,17 +19,31 @@ router.get('/', async (req: Request, res: Response) => {
     // Use blog service from service provider if authenticated, 
     // otherwise just render the home page
     let blogs = null;
+    let userProfile = null;
 
     if (request.isAuthenticated && request.services) {
       const blogService = await request.services.getBlogService();
       const result = await blogService.getAllBlogs();
       blogs = result.data;
+
+      if (request.user && request.user.sub) {
+        logger.info('request.user: ', request.user);
+        try {
+          const userService = await request.services.getUserService();
+          const userResult = await userService.getUserProfileWithOAuth(request.user.sub);
+          userProfile = userResult.data;
+        } catch (userError) {
+          logger.error('Failed to fetch user profile:', userError);
+        }
+      }
     }
     logger.info('blogs: ', blogs);
-
+    logger.info('userProfile: ', userProfile);
+    
     res.render('home', {
       pageTitle: 'Home',
       user: request.user,
+      userProfile,
       isAuthenticated: request.isAuthenticated,
       blogs
     });
@@ -52,18 +66,36 @@ router.get('/login', handleLogin);
 router.get('/oauth2/callback', handleLoginCallback);
 
 // Profile page
-router.get('/profile', requireAuth, (req: Request, res: Response) => {
+router.get('/profile', requireAuth, async(req: Request, res: Response) => {
   const request = req as AuthenticatedRequest;
+
+  let userProfile = null;
+
+  if (request.user && request.user.sub) {
+    logger.info('request.user: ', request.user);
+    try {
+      const userService = await request.services!.getUserService();
+      const userResult = await userService.getUserProfileWithOAuth(request.user.sub);
+      userProfile = userResult.data;
+      logger.info('userProfile: ', userProfile);
+    } catch (userError) {
+      logger.error('Failed to fetch user profile:', userError);
+    }
+  }
+  logger.info('tokens: ', request.tokens);
 
   res.render('profile', {
    pageTitle: 'Profile',
     user: request.user,
+    userProfile,
     isAuthenticated: request.isAuthenticated,
     tokens: {
       accessToken: request.tokens?.access_token,
       expiresIn: request.tokens?.expires_in || 'unknown',
       tokenType: request.tokens?.token_type,
-      hasRefreshToken: !!request.tokens?.refresh_token
+      scope: request.tokens?.scope,
+      idToken: request.tokens?.id_token,
+      refreshToken: request.tokens?.refresh_token
     }
   });
 });
@@ -91,7 +123,7 @@ router.get('/dashboard', requireAuth, async (req: Request, res: Response) => {
       user: request.user,
       isAuthenticated: request.isAuthenticated,
       blogs: blogs.data,
-      profile: userProfile?.data,
+      userProfile: userProfile?.data,
       error: blogs.error || userProfile?.error
     });
   } catch (error) {

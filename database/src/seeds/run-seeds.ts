@@ -3,23 +3,30 @@ import { getDataSource, closeDatabase } from '../index';
 import { blogSeedData } from './blog.seed';
 import { userSeedData } from './user.seed';
 import { Blog, User } from "../entities";
+import { logger } from '@/utils';
 
 export async function seedDatabase() {
   try {
     const dataSource = await getDataSource();
     
     // Clear existing data
-    console.log('Clearing existing data...');
+    logger.info('Clearing existing data...');
     const blogRepository = dataSource.getRepository(Blog);
     const userRepository = dataSource.getRepository(User);
-    // await blogRepository.clear();
-    // await userRepository.clear();
     await dataSource.query('TRUNCATE TABLE "blogs", "users" RESTART IDENTITY CASCADE');
     
+    // Prepare user seed data - ensure sub field matches id
+    const preparedUserData = userSeedData.map(user => ({
+      ...user,
+      sub: user.id // Set sub to match id
+    }));
+    
     // Insert seed data for users
-    console.log('Inserting user seed data...');
-    const users = await userRepository.save(userSeedData);
-    console.log(`Inserted ${users.length} user records`);
+    logger.info('Inserting user seed data...');
+    // Use insert instead of save to bypass BeforeInsert hook since we're manually setting IDs
+    const insertResult = await userRepository.insert(preparedUserData);
+    const users = await userRepository.find();
+    logger.info(`Inserted ${users.length} user records`);
     
     // Modify blog seed data to link to users
     const modifiedBlogData = blogSeedData.map((blog, index) => {
@@ -30,14 +37,14 @@ export async function seedDatabase() {
     });
     
     // Insert seed data for blogs
-    console.log('Inserting blog seed data...');
+    logger.info('Inserting blog seed data...');
     const blogs = await blogRepository.save(modifiedBlogData);
-    console.log(`Inserted ${blogs.length} blog records`);
+    logger.info(`Inserted ${blogs.length} blog records`);
     
-    console.log('Seeding completed successfully');
+    logger.info('Seeding completed successfully');
     await closeDatabase();
   } catch (error) {
-    console.error('Error seeding database:', error);
+    logger.error('Error seeding database:', error);
     process.exit(1);
   }
 }
@@ -46,6 +53,6 @@ export async function seedDatabase() {
 seedDatabase()
   .then(() => process.exit(0))
   .catch(err => {
-    console.error(err);
+    logger.error(err);
     process.exit(1);
   });

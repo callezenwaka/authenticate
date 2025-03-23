@@ -36,32 +36,6 @@ export class UserService {
     });
   }
 
-  async create(userData: CreateUserDto): Promise<User> {
-    const userRepository = await getUserRepository();
-    
-    // Check if user exists
-    const existingUser = await userRepository.findOne({
-      where: [
-        { username: userData.username },
-        { email: userData.email }
-      ]
-    });
-    
-    if (existingUser) {
-      throw new Error('User with this username or email already exists');
-    }
-    
-    const passwordHash = this.hashPassword(userData.password);
-    
-    const newUser = userRepository.create({
-      ...userData,
-      passwordHash,
-      isAdmin: false // Default value, can be overridden by admin
-    });
-    
-    return userRepository.save(newUser);
-  }
-
   async update(id: string, userData: UpdateUserDto): Promise<User | null> {
     const userRepository = await getUserRepository();
     const user = await userRepository.findOneBy({ id });
@@ -86,22 +60,48 @@ export class UserService {
     return result.affected !== 0;
   }
 
-  async authenticate(loginData: LoginUserDto): Promise<User | null> {
-    const userRepository = await getUserRepository();
-    const user = await userRepository.findOne({
-      where: { username: loginData.username }
-    });
+  // async create(userData: CreateUserDto): Promise<User> {
+  //   const userRepository = await getUserRepository();
     
-    if (!user) {
-      return null;
-    }
+  //   // Check if user exists
+  //   const existingUser = await userRepository.findOne({
+  //     where: [
+  //       { username: userData.username },
+  //       { email: userData.email }
+  //     ]
+  //   });
     
-    const passwordHash = this.hashPassword(loginData.password);
+  //   if (existingUser) {
+  //     throw new Error('User with this username or email already exists');
+  //   }
     
-    if (passwordHash !== user.passwordHash) {
-      return null;
-    }
+  //   const passwordHash = this.hashPassword(userData.password);
     
-    return user;
-  }
+  //   const newUser = userRepository.create({
+  //     ...userData,
+  //     passwordHash,
+  //     isAdmin: false // Default value, can be overridden by admin
+  //   });
+    
+  //   return userRepository.save(newUser);
+  // }
+
+  // async authenticate(loginData: LoginUserDto): Promise<User | null> {
+  //   const userRepository = await getUserRepository();
+  //   const user = await userRepository.findOne({
+  //     where: { username: loginData.username }
+  //   });
+    
+  //   if (!user) {
+  //     return null;
+  //   }
+    
+  //   const passwordHash = this.hashPassword(loginData.password);
+    
+  //   if (passwordHash !== user.passwordHash) {
+  //     return null;
+  //   }
+    
+  //   return user;
+  // }
 }

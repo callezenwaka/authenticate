@@ -1,22 +1,19 @@
+// backend/src/types/express.d.ts
+// import { Express } from 'express';
 import 'express';
 
-// Extend Express Request interface to include our custom properties
-declare global {
-  namespace Express {
-    interface Request {
-      dbAvailable?: boolean;
-      // redisAvailable?: boolean;
-      // Add other custom properties here as needed
-    }
-    
-    interface Application {
-      locals: {
-        databaseAvailable?: boolean;
-        reconnectAttempts?: number;
-        dbReconnectionExhausted?: boolean;
-        // redisAvailable?: boolean;
-        // Add other app-level properties here as needed
-      }
-    }
+declare module 'express-serve-static-core' {
+  interface Request {
+    dbAvailable?: boolean;
+    redisAvailable?: boolean;
+  }
+
+  interface Application {
+    locals: {
+      databaseAvailable?: boolean;
+      reconnectAttempts?: number;
+      dbReconnectionExhausted?: boolean;
+      redisAvailable?: boolean;
+    };
   }
 }

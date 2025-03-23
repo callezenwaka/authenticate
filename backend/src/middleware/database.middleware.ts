@@ -1,12 +1,17 @@
 // backend/src/middleware/database.middleware.ts
 import { Request, Response, NextFunction } from 'express';
 
+// Create an extended version of the Request interface specifically for this file
+interface IRequest extends Request {
+  dbAvailable?: boolean;
+}
+
 /**
  * Middleware to check if the database is available before proceeding to routes that require it
  * @param criticalEndpoint If true, returns 503 error when DB is down. If false, sets req.dbAvailable flag
  */
 export const databaseMiddleware = (criticalEndpoint = true): (req: Request, res: Response, next: NextFunction) => void => {
-  return function checkDatabase(req: Request, res: Response, next: NextFunction): void {
+  return function checkDatabase(req: IRequest, res: Response, next: NextFunction): void {
     // Check if database is available from the app locals
     const isDatabaseAvailable = req.app.locals.databaseAvailable === true;
     const reconnectionExhausted = req.app.locals.dbReconnectionExhausted === true;

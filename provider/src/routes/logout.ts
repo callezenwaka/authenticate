@@ -31,7 +31,7 @@ router.get("/", csrfProtection, (req, res, next) => {
       res.render("logout", {
         csrfToken: req.csrfToken(),
         challenge: challenge,
-        action: urljoin(process.env.BASE_URL || "http://localhost:3000", "/logout"),
+        action: urljoin(process.env.BASE_URL!, "/logout"),
         pageTitle: "Authenticate | Logout Page"
       })
     })
@@ -49,7 +49,9 @@ router.post("/", csrfProtection, (req, res, next) => {
         .rejectOAuth2LogoutRequest({ logoutChallenge: challenge })
         .then(() => {
           // The user did not want to log out. Let's redirect him back somewhere or do something else.
-          res.redirect("https://www.ory.sh/")
+          // res.redirect("https://www.ory.sh/")
+          const referrer = req.get('Referrer') || '/';
+          res.redirect(referrer);
         })
         // This will handle any error that happens when making HTTP calls to hydra
         .catch(next)

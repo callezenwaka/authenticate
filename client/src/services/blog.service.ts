@@ -97,7 +97,7 @@ export class BlogService extends BaseService {
  * Factory function to create blog service
  */
 export const createBlogService = (
-  baseURL: string = process.env.API_URL || 'http://localhost:8000',
+  baseURL: string = process.env.API_URL!,
   tokenResponse?: CustomToken,
   config?: OAuthConfig
 ): BlogService => {

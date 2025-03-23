@@ -1,10 +1,11 @@
 // database/src/entities/user.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, BeforeInsert } from 'typeorm';
 import { Blog } from './blog.entity';
+import { v4 as uuidv4 } from 'uuid'; // Import uuidv4
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id!: string;
 
   @Column({ length: 50, unique: true })
@@ -16,8 +17,8 @@ export class User {
   @Column()
   passwordHash!: string;
 
-  @Column({ nullable: true })
-  sub!: string; // OpenID Connect subject identifier
+  @Column() // Removed nullable as it will always have a value
+  sub!: string;
 
   @Column({ default: false })
   isAdmin!: boolean;
@@ -33,4 +34,10 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt!: Date;
+
+  @BeforeInsert() // TypeORM lifecycle event
+  generateIdAndSub() {
+    this.id = uuidv4();
+    this.sub = this.id;
+  }
 }

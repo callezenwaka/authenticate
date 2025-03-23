@@ -8,7 +8,6 @@ services:
     ports:
       - "4444:4444" # Public API
       - "4445:4445" # Admin API
-      # - "5555:5555" # Port for hydra token user
     environment:
       - DSN=postgres://hydra_user:hydra_password@hydra-postgres:5432/hydra_db?sslmode=disable
       - URLS_SELF_ISSUER=http://localhost:4444/
@@ -110,7 +109,7 @@ services:
       - hydra-net
 
   # Database management service
-  database:
+  app-database:
     build:
       context: ./database
       dockerfile: Dockerfile

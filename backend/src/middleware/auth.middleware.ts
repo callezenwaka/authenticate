@@ -1,3 +1,4 @@
+// backend/src/middleware/auth.middleware.ts
 import { Request, Response, NextFunction } from 'express';
 import { expressjwt as jwt, GetVerificationKey } from 'express-jwt';
 import jwksRsa from 'jwks-rsa';
@@ -13,11 +14,11 @@ export const authenticateJwt = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: process.env.JWKS_URI || 'http://localhost:4444/.well-known/jwks.json'
+    jwksUri: process.env.JWKS_URI!,
   }) as GetVerificationKey,
   // Validate audience and issuer
-  audience: process.env.TOKEN_AUDIENCE || 'http://localhost:8000',
-  issuer: process.env.TOKEN_ISSUER || 'http://localhost:4444/',
+  audience: process.env.TOKEN_AUDIENCE,
+  issuer: process.env.TOKEN_ISSUER,
   algorithms: ['RS256']
 });
 
@@ -35,9 +36,8 @@ export const requireScopes = (requiredScopes: string[]) => {
       });
     }
 
-    const tokenScopes = request.auth.scope?.split(' ') || [];
-    logger.debug(`Token scopes: ${tokenScopes.join(', ')}`);
-    logger.debug(`Required scopes: ${requiredScopes.join(', ')}`);
+    // Extract scopes from the token, Hydra uses 'scp' as an array
+    const tokenScopes: string[] = Array.isArray(request.auth.scp) ? request.auth.scp : [];
     
     const hasRequiredScopes = requiredScopes.every(scope => 
       tokenScopes.includes(scope)

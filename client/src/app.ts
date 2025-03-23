@@ -1,4 +1,4 @@
-// frontend/src/app.ts
+// client/src/app.ts
 import express from 'express';
 import session from 'express-session';
 import helmet from 'helmet';
